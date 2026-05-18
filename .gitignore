@@ -1,0 +1,30 @@
+# Unity generated
+Library/
+Temp/
+Logs/
+obj/
+Builds/
+UserSettings/
+
+# Burst debug
+*_BurstDebugInformation_DoNotShip/
+
+# APK / build output
+*.apk
+*.aab
+*.ipa
+
+# IDE / editor
+.vscode/
+.idea/
+*.sln
+*.slnx
+*.csproj
+
+# Claude Code session files
+.claude/
+.utmp/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -4,32 +4,43 @@ using System.Collections.Generic;
 
 public class BallLauncher2D : MonoBehaviour
 {
-    private List<OrbiterBall2D> _balls             = new List<OrbiterBall2D>();
-    private bool                _waitingForRespawn = false;
+    private List<OrbiterBall2D> _balls          = new List<OrbiterBall2D>();
+    private int                 _currentIndex   = 0;
+    private bool                _allThrown      = false;
+    private bool                _inputCooldown  = false;
 
-    // Called by LevelManager before registering new balls for a fresh level.
     public void ResetForNewLevel()
     {
         StopAllCoroutines();
+        CancelInvoke();
         _balls.Clear();
-        _waitingForRespawn = false;
+        _currentIndex  = 0;
+        _allThrown     = false;
+        _inputCooldown = false;
     }
 
-    // Called by LevelManager.RespawnOrbiters() before registering new balls.
     public void ClearBalls()
     {
+        CancelInvoke();
         _balls.Clear();
-        _waitingForRespawn = false;
+        _currentIndex  = 0;
+        _allThrown     = false;
+        _inputCooldown = false;
     }
 
     public void RegisterBall(OrbiterBall2D ball)
     {
-        if (ball != null) _balls.Add(ball);
+        if (ball == null) return;
+        _balls.Add(ball);
+        ball.SetHighlight(_balls.Count == 1);
     }
 
     void Update()
     {
-        if (GameManager.Instance == null || GameManager.Instance.State != GameManager.GameState.Playing) return;
+        if (GameManager.Instance == null) return;
+        if (GameManager.Instance.State != GameManager.GameState.Playing) return;
+        if (_allThrown) return;
+        if (_inputCooldown) return;
 
         bool tapped = Input.GetMouseButtonDown(0);
         if (!tapped && Input.touchCount > 0)
@@ -37,30 +48,44 @@ public class BallLauncher2D : MonoBehaviour
 
         if (!tapped) return;
 
-        // Purge destroyed ball refs accumulated from previous levels.
-        _balls.RemoveAll(b => b == null);
+        _inputCooldown = true;
+        ThrowYellowBall();
+        Invoke(nameof(ResetCooldown), 0.3f);
+    }
 
-        Vector2 tapPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    void ResetCooldown() => _inputCooldown = false;
 
-        OrbiterBall2D closest = null;
-        float minDist = float.MaxValue;
+    void ThrowYellowBall()
+    {
+        OrbiterBall2D yellowBall = null;
         foreach (var b in _balls)
         {
-            if (b.IsReleased) continue;
-            float d = Vector2.Distance(tapPos, b.transform.position);
-            if (d < minDist) { minDist = d; closest = b; }
+            if (b != null && !b.IsReleased && b.IsHighlighted)
+            {
+                yellowBall = b;
+                break;
+            }
         }
 
-        if (closest != null)
+        if (yellowBall == null) return;
+
+        yellowBall.SetHighlight(false);
+        yellowBall.Release();
+
+        bool foundNext = false;
+        foreach (var b in _balls)
         {
-            closest.Release();
-            _balls.Remove(closest);
+            if (b != null && !b.IsReleased && !b.IsHighlighted)
+            {
+                b.SetHighlight(true);
+                foundNext = true;
+                break;
+            }
         }
 
-        // All balls released — start respawn timer (guard prevents duplicate coroutines).
-        if (!_waitingForRespawn && !_balls.Exists(b => !b.IsReleased))
+        if (!foundNext)
         {
-            _waitingForRespawn = true;
+            _allThrown = true;
             StartCoroutine(CheckAllExited());
         }
     }
@@ -68,17 +93,16 @@ public class BallLauncher2D : MonoBehaviour
     IEnumerator CheckAllExited()
     {
         yield return new WaitForSeconds(1.5f);
-        _waitingForRespawn = false;
-
-        if (GameManager.Instance == null
-            || GameManager.Instance.State != GameManager.GameState.Playing)
+        if (GameManager.Instance == null || GameManager.Instance.State != GameManager.GameState.Playing)
             yield break;
-
         if (LevelManager.Instance != null && LevelManager.Instance.TargetsRemaining > 0)
         {
             GameManager.Instance.LoseLife();
             if (GameManager.Instance.Lives > 0)
+            {
+                _allThrown = false;
                 LevelManager.Instance.RespawnOrbiters();
+            }
         }
     }
 }

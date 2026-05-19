@@ -64,12 +64,22 @@ public class LevelManager : MonoBehaviour
     {
         switch (level)
         {
-            case 1: return 2;
-            case 2: return 3;
-            case 3: return 4;
-            case 4: return 5;
-            case 5: return 6;
-            default: return 6;
+            case 1:  return 2;
+            case 2:  return 3;
+            case 3:  return 3;
+            case 4:  return 4;
+            case 5:  return 4;
+            case 6:  return 5;
+            case 7:  return 5;
+            case 8:  return 6;
+            case 9:  return 6;
+            case 10: return 7;
+            case 11: return 7;
+            case 12: return 8;
+            case 13: return 9;
+            case 14: return 10;
+            case 15: return 12;
+            default: return 12;
         }
     }
 
@@ -85,7 +95,25 @@ public class LevelManager : MonoBehaviour
 
     private float GetOrbiterSpeed(int level)
     {
-        return 80f + (level * 15f);
+        switch (level)
+        {
+            case 1:  return 60f;
+            case 2:  return 70f;
+            case 3:  return 80f;
+            case 4:  return 90f;
+            case 5:  return 95f;
+            case 6:  return 100f;
+            case 7:  return 105f;
+            case 8:  return 110f;
+            case 9:  return 115f;
+            case 10: return 120f;
+            case 11: return 130f;
+            case 12: return 140f;
+            case 13: return 150f;
+            case 14: return 158f;
+            case 15: return 165f;
+            default: return 165f;
+        }
     }
 
     public void LoadLevel(int levelNumber)

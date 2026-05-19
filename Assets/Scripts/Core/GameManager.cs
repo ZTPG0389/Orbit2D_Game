@@ -126,15 +126,23 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         _currentLevel++;
         OnLevelChanged?.Invoke(_currentLevel);
-        if (_currentLevel > 5)
+        if (_currentLevel > 15)
         {
-            RestartGame();
+            ShowWinPanel();
         }
         else
         {
             SetState(GameState.Playing);
             LevelManager.Instance?.LoadLevel(_currentLevel);
         }
+    }
+
+    public void ShowWinPanel()
+    {
+        _gameOverCalled = false;
+        Lives = StartLives;
+        _currentLevel = 1;
+        SceneManager.LoadScene(Game2DSceneIndex);
     }
 
     private void SetState(GameState newState)

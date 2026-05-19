@@ -29,9 +29,17 @@ public class LevelCompleteUI2D : MonoBehaviour
         group.interactable   = false;
         group.blocksRaycasts = false;
 
-        titleText.text    = level >= 5 ? "You Win!" : "Level Complete!";
-        subtitleText.text = "Level " + level + " cleared!";
-        bonusText.text    = "+" + bonus + " Bonus!";
+        if (level >= 15)
+        {
+            titleText.text    = "\U0001F3C6 You Win!";
+            subtitleText.text = "All 15 levels cleared!";
+        }
+        else
+        {
+            titleText.text    = "Level Complete!";
+            subtitleText.text = "Level " + level + " cleared!";
+        }
+        bonusText.text = "+" + bonus + " Bonus!";
 
         StopAllCoroutines();
         StartCoroutine(AutoAdvance());

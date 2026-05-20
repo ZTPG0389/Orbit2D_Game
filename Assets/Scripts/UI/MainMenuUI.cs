@@ -7,10 +7,13 @@ public class MainMenuUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text bestScoreText;
     [SerializeField] private Button   playButton;
+    [SerializeField] private Button   settingsButton;
 
     private void Start()
     {
         RefreshBestScore();
+        if (settingsButton != null)
+            settingsButton.onClick.AddListener(() => SettingsUI.Instance?.Show());
     }
 
     private void RefreshBestScore()

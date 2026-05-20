@@ -116,11 +116,25 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    private void UpdateBackground(int level)
+    {
+        if (Camera.main == null) return;
+        Color bgColor;
+        if (level <= 5)
+            bgColor = new Color(0.008f, 0.008f, 0.031f); // #020208 deep black
+        else if (level <= 10)
+            bgColor = new Color(0.039f, 0.039f, 0.18f);  // #0a0a2e dark blue
+        else
+            bgColor = new Color(0.102f, 0.039f, 0.039f); // #1a0a0a dark red
+        Camera.main.backgroundColor = bgColor;
+    }
+
     public void LoadLevel(int levelNumber)
     {
         Debug.Log($"[LevelManager] LoadLevel({levelNumber})");
         ClearAll();
         _currentLevel = levelNumber;
+        UpdateBackground(_currentLevel);
         _currentConfig = new LevelConfig
         {
             targetCount = GetTargetCount(levelNumber),

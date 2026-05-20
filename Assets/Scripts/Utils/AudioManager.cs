@@ -31,11 +31,13 @@ public class AudioManager : MonoBehaviour
         SfxVolume = PlayerPrefs.GetFloat(SfxVolKey, 1.0f);
         BgmVolume = PlayerPrefs.GetFloat(BgmVolKey, 0.6f);
 
-        if (sfxSource != null) sfxSource.volume = SfxVolume;
+        if (sfxSource != null) sfxSource.volume = PlayerPrefs.GetInt("SFXOn", 1) == 1 ? 1f : 0f;
+        bool musicOn = PlayerPrefs.GetInt("MusicOn", 1) == 1;
         if (bgmSource != null)
         {
-            bgmSource.volume = BgmVolume;
             bgmSource.loop   = true;
+            bgmSource.volume = musicOn ? 0.4f : 0f;
+            if (!musicOn) bgmSource.Stop();
         }
     }
 
@@ -72,12 +74,26 @@ public class AudioManager : MonoBehaviour
     public void PlayBGM()
     {
         if (bgmSource == null || bgmClip == null) return;
+        if (PlayerPrefs.GetInt("MusicOn", 1) == 0) return;
         if (bgmSource.isPlaying && bgmSource.clip == bgmClip) return;
         bgmSource.clip = bgmClip;
         bgmSource.Play();
     }
 
     public void StopBGM() => bgmSource?.Stop();
+
+    public void SetMusicVolume(float v)
+    {
+        if (bgmSource != null)
+        {
+            bgmSource.volume = v;
+            if (v <= 0f)
+                bgmSource.Stop();
+            else if (!bgmSource.isPlaying)
+                bgmSource.Play();
+        }
+    }
+    public void SetSFXVolume(float v)   { if (sfxSource != null) sfxSource.volume  = v; }
 
     public void SetSfxVolume(float volume)
     {

@@ -13,10 +13,17 @@ public class TargetRing2D : MonoBehaviour
         OrbiterBall2D ball = other.GetComponent<OrbiterBall2D>();
         if (ball != null) ball.HasHit = true;
 
-        ScoreManager.Instance?.RegisterHit();
+        int points = ScoreManager.Instance?.RegisterHit() ?? 0;
         LevelManager.Instance?.OnTargetHit();
         ParticleManager.Instance?.SpawnHitBurst(transform.position);
+        FloatingScoreUI.Instance?.ShowScore(transform.position, points);
         AudioManager.Instance?.PlaySFX(AudioManager.SFX.Hit);
+        if (PlayerPrefs.GetInt("VibrationOn", 1) == 1)
+        {
+#if UNITY_ANDROID
+            Handheld.Vibrate();
+#endif
+        }
 
         Destroy(gameObject);
     }

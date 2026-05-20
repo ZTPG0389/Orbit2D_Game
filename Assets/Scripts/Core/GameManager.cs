@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    public enum GameState { MainMenu, Playing, LevelComplete, GameOver }
+    public enum GameState { MainMenu, Playing, Paused, LevelComplete, GameOver }
 
     public GameState State        { get; private set; }
     public int       CurrentLevel => _currentLevel;
@@ -84,6 +84,12 @@ public class GameManager : MonoBehaviour
     public void StartGame()    => SceneManager.LoadScene(GameSceneIndex);
     public void RestartGame()  => SceneManager.LoadScene(GameSceneIndex);
     public void GoToMainMenu() => SceneManager.LoadScene(MenuSceneIndex);
+
+    public void PauseGame()
+    {
+        SetState(GameState.Paused);
+        PauseMenuUI.Instance?.Show();
+    }
 
     public void RestartCurrentLevel()
     {

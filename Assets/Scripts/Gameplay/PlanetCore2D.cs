@@ -1,29 +1,17 @@
 using UnityEngine;
-using System.Collections;
 
 public class PlanetCore2D : MonoBehaviour
 {
-    private float _baseSize;
+    [SerializeField] float swingAngle = 15f;  // kitna tilt hoga
+    [SerializeField] float swingSpeed = 0.8f; // kitni tezi se swing hoga
 
-    void Start()
-    {
-        _baseSize = Mathf.Min(ScreenBounds.Width, ScreenBounds.Height) * 0.35f;
-        transform.localScale = new Vector3(_baseSize, _baseSize, 1f);
-        StartCoroutine(PulsePlanet());
-    }
+    private float _time = 0f;
 
-    IEnumerator PulsePlanet()
+    void Update()
     {
-        while (true)
-        {
-            float t = 0f;
-            while (t < 1.2f)
-            {
-                t += Time.deltaTime;
-                float s = _baseSize * (1f + Mathf.Sin(t * Mathf.PI) * 0.03f);
-                transform.localScale = new Vector3(s, s, 1f);
-                yield return null;
-            }
-        }
+        _time += Time.deltaTime * swingSpeed;
+        // Swing left and right using sin wave
+        float angle = Mathf.Sin(_time) * swingAngle;
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 }

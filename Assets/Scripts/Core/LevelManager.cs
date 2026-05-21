@@ -135,6 +135,7 @@ public class LevelManager : MonoBehaviour
         ClearAll();
         _currentLevel = levelNumber;
         UpdateBackground(_currentLevel);
+        BackgroundPlanet.Instance?.SetPlanetForLevel(_currentLevel);
         _currentConfig = new LevelConfig
         {
             targetCount = GetTargetCount(levelNumber),

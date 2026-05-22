@@ -98,6 +98,7 @@ public class GameHUD : MonoBehaviour
                 ? new Color(1f, 0.27f, 0.27f, 1f)
                 : new Color(1f, 1f, 1f, 0.3f);
         }
+        Debug.Log("Heart updated instantly — lives: " + lives);
     }
 
     private void OnLevelChanged(int level)

@@ -106,11 +106,12 @@ public class GameManager : MonoBehaviour
     {
         if (_gameOverCalled) return;
         Lives = Mathf.Max(0, Lives - 1);
-        Debug.Log("LoseLife called, lives remaining: " + Lives);
+        Debug.Log($"Life lost! Remaining: {Lives}");
         OnLivesChanged?.Invoke(Lives);
         if (Lives <= 0)
         {
             _gameOverCalled = true;
+            Debug.Log("GAME OVER - instant!");
             SetState(GameState.GameOver);
             GameOverUI.Instance?.Show(
                 ScoreManager.Instance?.Score     ?? 0,

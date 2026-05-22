@@ -50,7 +50,21 @@ public class OrbiterBall2D : MonoBehaviour
 
     void Update()
     {
-        if (_released && transform.position.magnitude > 20f)
+        if (!_released) return;
+
+        Camera cam = Camera.main;
+        bool offScreen;
+        if (cam != null)
+        {
+            Vector3 vp = cam.WorldToViewportPoint(transform.position);
+            offScreen = vp.x < -0.05f || vp.x > 1.05f || vp.y < -0.05f || vp.y > 1.05f;
+        }
+        else
+        {
+            offScreen = transform.position.magnitude > 8f;
+        }
+
+        if (offScreen)
         {
             if (!HasHit)
                 GameManager.Instance?.LoseLife();

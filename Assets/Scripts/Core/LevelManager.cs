@@ -55,6 +55,7 @@ public class LevelManager : MonoBehaviour
         {
             case GameManager.GameState.GameOver:
             case GameManager.GameState.MainMenu:
+                CancelInvoke(nameof(TriggerLevelComplete));
                 ClearAll();
                 break;
         }
@@ -195,7 +196,12 @@ public class LevelManager : MonoBehaviour
         TargetsRemaining--;
         OnTargetsChanged?.Invoke(TargetsRemaining);
         if (TargetsRemaining <= 0)
-            GameManager.Instance?.OnLevelComplete();
+            Invoke(nameof(TriggerLevelComplete), 0.8f);
+    }
+
+    private void TriggerLevelComplete()
+    {
+        GameManager.Instance?.OnLevelComplete();
     }
 
     private void SpawnOrbiters(LevelConfig cfg)
@@ -234,15 +240,57 @@ public class LevelManager : MonoBehaviour
     {
         if (targetPrefab == null) { Debug.LogError("[LevelManager] targetPrefab is NULL"); return; }
 
+        Camera cam = Camera.main;
+        LogCameraBounds(cam);
+
         Transform root = spawnRoot != null ? spawnRoot : transform;
 
         for (int i = 0; i < cfg.targetCount; i++)
         {
-            Vector3 pos = ScreenBounds.RandomTargetPosition(3.0f, 0.75f);
+            Vector3 pos = RandomTargetInCameraBounds(cam, minDist: 3.0f, margin: 0.75f);
             if (spawnRoot != null) pos += spawnRoot.position;
             GameObject go = Instantiate(targetPrefab, pos, Quaternion.identity, root);
             _targetObjects.Add(go);
+            Debug.Log($"[LevelManager] TargetRing[{i}] spawned at ({pos.x:F2}, {pos.y:F2})");
         }
+    }
+
+    private static void LogCameraBounds(Camera cam)
+    {
+        if (cam == null) { Debug.LogWarning("[LevelManager] Camera.main is null — cannot log bounds."); return; }
+        float oH = cam.orthographicSize;
+        float oW = oH * cam.aspect;
+        float cx = cam.transform.position.x;
+        float cy = cam.transform.position.y;
+        Debug.Log($"[LevelManager] Camera  pos=({cx:F2},{cy:F2})  orthoSize={oH:F2}  aspect={cam.aspect:F2}" +
+                  $"  |  bounds  top={cy + oH:F2}  bottom={cy - oH:F2}  left={cx - oW:F2}  right={cx + oW:F2}");
+    }
+
+    // Generates a random world position guaranteed to fall inside the camera's
+    // visible rectangle (scaled by margin), centred on the camera — not world origin.
+    private static Vector3 RandomTargetInCameraBounds(Camera cam, float minDist, float margin)
+    {
+        if (cam == null) return ScreenBounds.RandomTargetPosition(minDist, margin);
+
+        float halfH = cam.orthographicSize * margin;
+        float halfW = cam.orthographicSize * cam.aspect * margin;
+        float cx    = cam.transform.position.x;
+        float cy    = cam.transform.position.y;
+
+        Vector3 centre = new Vector3(cx, cy, 0f);
+        Vector3 pos    = centre;
+        int     tries  = 0;
+
+        do
+        {
+            float x = UnityEngine.Random.Range(cx - halfW, cx + halfW);
+            float y = UnityEngine.Random.Range(cy - halfH, cy + halfH);
+            pos = new Vector3(x, y, 0f);
+            tries++;
+        }
+        while (Vector3.Distance(pos, centre) < minDist && tries < 100);
+
+        return pos;
     }
 
     private void ClearOrbiters()

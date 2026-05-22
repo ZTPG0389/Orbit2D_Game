@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class BallLauncher2D : MonoBehaviour
@@ -8,24 +7,26 @@ public class BallLauncher2D : MonoBehaviour
     private int                 _currentIndex   = 0;
     private bool                _allThrown      = false;
     private bool                _inputCooldown  = false;
+    private bool                _waitingForExit = false;
 
     public void ResetForNewLevel()
     {
-        StopAllCoroutines();
         CancelInvoke();
         _balls.Clear();
-        _currentIndex  = 0;
-        _allThrown     = false;
-        _inputCooldown = false;
+        _currentIndex   = 0;
+        _allThrown      = false;
+        _inputCooldown  = false;
+        _waitingForExit = false;
     }
 
     public void ClearBalls()
     {
         CancelInvoke();
         _balls.Clear();
-        _currentIndex  = 0;
-        _allThrown     = false;
-        _inputCooldown = false;
+        _currentIndex   = 0;
+        _allThrown      = false;
+        _inputCooldown  = false;
+        _waitingForExit = false;
     }
 
     public void RegisterBall(OrbiterBall2D ball)
@@ -39,8 +40,22 @@ public class BallLauncher2D : MonoBehaviour
     {
         if (GameManager.Instance == null) return;
         if (GameManager.Instance.State != GameManager.GameState.Playing) return;
-        if (_allThrown) return;
-        if (_inputCooldown) return;
+
+        if (_waitingForExit)
+        {
+            bool allGone = true;
+            foreach (var b in _balls)
+                if (b != null) { allGone = false; break; }
+
+            if (allGone)
+            {
+                _waitingForExit = false;
+                OnAllBallsExited();
+            }
+            return;
+        }
+
+        if (_allThrown || _inputCooldown) return;
 
         bool tapped = Input.GetMouseButtonDown(0);
         if (!tapped && Input.touchCount > 0)
@@ -85,24 +100,20 @@ public class BallLauncher2D : MonoBehaviour
 
         if (!foundNext)
         {
-            _allThrown = true;
-            StartCoroutine(CheckAllExited());
+            _allThrown      = true;
+            _waitingForExit = true;
         }
     }
 
-    IEnumerator CheckAllExited()
+    void OnAllBallsExited()
     {
-        yield return new WaitForSeconds(1.5f);
-        if (GameManager.Instance == null || GameManager.Instance.State != GameManager.GameState.Playing)
-            yield break;
-        if (LevelManager.Instance != null && LevelManager.Instance.TargetsRemaining > 0)
+        if (GameManager.Instance == null || GameManager.Instance.State != GameManager.GameState.Playing) return;
+        if (LevelManager.Instance == null || LevelManager.Instance.TargetsRemaining <= 0) return;
+
+        if (GameManager.Instance.Lives > 0)
         {
-            GameManager.Instance.LoseLife();
-            if (GameManager.Instance.Lives > 0)
-            {
-                _allThrown = false;
-                LevelManager.Instance.RespawnOrbiters();
-            }
+            _allThrown = false;
+            LevelManager.Instance.RespawnOrbiters();
         }
     }
 }

@@ -3,33 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-// Step 31 — Queue<GameObject> pool (pre-warm 6); SpawnHitBurst(); SpawnScorePopup() with DOTween float+fade
 public class ParticleManager : MonoBehaviour
 {
     public static ParticleManager Instance { get; private set; }
 
-    [SerializeField] private GameObject hitBurstPrefab;
     [SerializeField] private GameObject scorePopupPrefab;
     [SerializeField] private int        prewarmCount = 6;
 
-    private Queue<GameObject> burstPool = new Queue<GameObject>();
     private Queue<GameObject> popupPool = new Queue<GameObject>();
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
-        Prewarm(hitBurstPrefab,   burstPool,  prewarmCount);
-        Prewarm(scorePopupPrefab, popupPool,  prewarmCount);
+        Prewarm(scorePopupPrefab, popupPool, prewarmCount);
     }
 
     private void Prewarm(GameObject prefab, Queue<GameObject> pool, int count)
@@ -43,27 +35,10 @@ public class ParticleManager : MonoBehaviour
         }
     }
 
+    // Forwards to CFXRExplosionManager so callers don't need a direct reference.
     public void SpawnHitBurst(Vector3 worldPos)
     {
-        if (hitBurstPrefab == null) return;
-
-        GameObject go = Rent(burstPool, hitBurstPrefab);
-        go.transform.position = worldPos;
-        go.transform.rotation = Quaternion.identity;
-        go.SetActive(true);
-
-        var ps = go.GetComponent<ParticleSystem>();
-        if (ps != null)
-        {
-            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            ps.Play();
-            float lifespan = ps.main.duration + ps.main.startLifetime.constantMax;
-            StartCoroutine(Return(go, burstPool, lifespan));
-        }
-        else
-        {
-            StartCoroutine(Return(go, burstPool, 1.0f));
-        }
+        CFXRExplosionManager.Instance?.SpawnExplosion(worldPos);
     }
 
     public void SpawnScorePopup(Vector3 worldPos, int points)
@@ -96,7 +71,7 @@ public class ParticleManager : MonoBehaviour
 
             if (label != null)
             {
-                float alpha = Mathf.Clamp01(1f - c * c);          // quad fade out
+                float alpha = Mathf.Clamp01(1f - c * c);
                 label.color = new Color(baseCol.r, baseCol.g, baseCol.b, alpha);
             }
             yield return null;
@@ -116,7 +91,6 @@ public class ParticleManager : MonoBehaviour
         }
     }
 
-    // Dequeue a usable object; fall back to a fresh instantiation if pool is exhausted
     private GameObject Rent(Queue<GameObject> pool, GameObject prefab)
     {
         while (pool.Count > 0)

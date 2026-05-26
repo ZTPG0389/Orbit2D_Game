@@ -8,19 +8,51 @@ public static class AndroidBuilder
 {
     const string OutputPath = "Builds/Android/OrbitDrop3D.apk";
 
-    // ── Build + install + launch on connected device ───────────
-    [MenuItem("Tools/Android/Build and Run on Device")]
-    public static void BuildAndRun()
+    // ── Dev build: Mono backend — fast, low disk use ──────────
+    // Use this during development. Skips IL2CPP compilation entirely.
+    [MenuItem("Tools/Android/[DEV] Build and Run (Mono — Fast)")]
+    public static void BuildAndRunMono()
+    {
+        if (!SwitchToAndroid()) return;
+        SetScriptingBackend(ScriptingImplementation.Mono2x);
+
+        var scenes = GetEnabledScenes();
+        if (scenes.Count == 0) { NoScenesDialog(); return; }
+
+        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+        {
+            scenes           = scenes.ToArray(),
+            locationPathName = OutputPath,
+            target           = BuildTarget.Android,
+            options          = BuildOptions.AutoRunPlayer | BuildOptions.Development
+        });
+
+        LogReport(report, "Mono");
+    }
+
+    // ── Release build: IL2CPP — optimised, needs 12+ GB free ──
+    [MenuItem("Tools/Android/[RELEASE] Build and Run (IL2CPP)")]
+    public static void BuildAndRunIL2CPP()
     {
         if (!SwitchToAndroid()) return;
 
-        var scenes = GetEnabledScenes();
-        if (scenes.Count == 0)
+        // Warn if disk is tight
+        var drive = new System.IO.DriveInfo("C");
+        double freeGB = drive.AvailableFreeSpace / 1073741824.0;
+        if (freeGB < 12.0)
         {
-            EditorUtility.DisplayDialog("No Scenes",
-                "Add scenes to File > Build Settings before building.", "OK");
-            return;
+            bool proceed = EditorUtility.DisplayDialog("Low Disk Space",
+                $"C: drive has only {freeGB:F1} GB free.\n" +
+                "IL2CPP needs ~12 GB to compile.\n\n" +
+                "Use [DEV] Mono build instead, or free up space first.",
+                "Build Anyway", "Cancel");
+            if (!proceed) return;
         }
+
+        SetScriptingBackend(ScriptingImplementation.IL2CPP);
+
+        var scenes = GetEnabledScenes();
+        if (scenes.Count == 0) { NoScenesDialog(); return; }
 
         var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
         {
@@ -30,35 +62,39 @@ public static class AndroidBuilder
             options          = BuildOptions.AutoRunPlayer
         });
 
-        LogReport(report);
+        LogReport(report, "IL2CPP");
     }
 
-    // ── Build APK only (no auto-run) ───────────────────────────
-    [MenuItem("Tools/Android/Build APK Only")]
-    public static void BuildOnly()
+    // ── Build APK only, no auto-run ────────────────────────────
+    [MenuItem("Tools/Android/Build APK Only (Mono)")]
+    public static void BuildOnlyMono()
     {
         if (!SwitchToAndroid()) return;
+        SetScriptingBackend(ScriptingImplementation.Mono2x);
 
         var scenes = GetEnabledScenes();
-        if (scenes.Count == 0)
-        {
-            EditorUtility.DisplayDialog("No Scenes",
-                "Add scenes to File > Build Settings before building.", "OK");
-            return;
-        }
+        if (scenes.Count == 0) { NoScenesDialog(); return; }
 
         var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
         {
             scenes           = scenes.ToArray(),
             locationPathName = OutputPath,
             target           = BuildTarget.Android,
-            options          = BuildOptions.None
+            options          = BuildOptions.Development
         });
 
-        LogReport(report);
+        LogReport(report, "Mono");
     }
 
     // ── Helpers ───────────────────────────────────────────────
+
+    static void SetScriptingBackend(ScriptingImplementation backend)
+    {
+        var current = PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android);
+        if (current == backend) return;
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, backend);
+        Debug.Log($"[AndroidBuilder] Switched scripting backend → {backend}");
+    }
 
     static bool SwitchToAndroid()
     {
@@ -68,11 +104,9 @@ public static class AndroidBuilder
         bool ok = EditorUtility.DisplayDialog("Switch Platform",
             "Active platform is not Android.\nSwitch to Android now?\n\n" +
             "(This may take a minute to reimport assets.)", "Switch", "Cancel");
-
         if (!ok) return false;
 
-        EditorUserBuildSettings.SwitchActiveBuildTarget(
-            BuildTargetGroup.Android, BuildTarget.Android);
+        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
         return true;
     }
 
@@ -84,21 +118,25 @@ public static class AndroidBuilder
         return list;
     }
 
-    static void LogReport(BuildReport report)
+    static void NoScenesDialog() =>
+        EditorUtility.DisplayDialog("No Scenes",
+            "Add scenes to File > Build Settings before building.", "OK");
+
+    static void LogReport(BuildReport report, string backend)
     {
         if (report.summary.result == BuildResult.Succeeded)
         {
             double mb = report.summary.totalSize / 1048576.0;
-            Debug.Log($"[AndroidBuilder] Build succeeded — {mb:F1} MB → {OutputPath}");
+            Debug.Log($"[AndroidBuilder] {backend} build succeeded — {mb:F1} MB → {OutputPath}");
             EditorUtility.DisplayDialog("Build Succeeded",
-                $"APK built successfully.\n\nSize: {mb:F1} MB\nPath: {OutputPath}", "OK");
+                $"APK built successfully ({backend}).\n\nSize: {mb:F1} MB\nPath: {OutputPath}", "OK");
         }
         else
         {
-            Debug.LogError($"[AndroidBuilder] Build FAILED — {report.summary.result}\n" +
-                           $"Errors: {report.summary.totalErrors}");
+            Debug.LogError($"[AndroidBuilder] {backend} build FAILED — " +
+                           $"{report.summary.result} | Errors: {report.summary.totalErrors}");
             EditorUtility.DisplayDialog("Build Failed",
-                $"Build failed with {report.summary.totalErrors} error(s).\n" +
+                $"{backend} build failed with {report.summary.totalErrors} error(s).\n" +
                 "Check the Console for details.", "OK");
         }
     }

@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class LevelSelectedBuilder : MonoBehaviour
 {
-    // Cached sprites loaded once from Resources/Sprites/UI/
     Sprite _sprBtn;
     Sprite _sprLock;
     Sprite _sprStarFilled;
@@ -14,7 +13,6 @@ public class LevelSelectedBuilder : MonoBehaviour
 
     void Start()
     {
-        // Yield to LevelSelectManager when both scripts are present in the scene
         if (FindObjectOfType<LevelSelectManager>() != null) return;
 
         _sprBtn        = Resources.Load<Sprite>("Sprites/UI/level_button");
@@ -23,12 +21,76 @@ public class LevelSelectedBuilder : MonoBehaviour
         _sprStarEmpty  = Resources.Load<Sprite>("Sprites/UI/star_empty");
         _sprBg         = Resources.Load<Sprite>("Sprites/UI/space_bg");
 
+        FixScrollView();
         BuildGrid();
         UpdateHeader();
         UpdateBackground();
     }
 
-    // ── Grid ─────────────────────────────────────────────────────
+    // ── 1. Fix ScrollRect + Viewport + content anchor ────────────
+    private void FixScrollView()
+    {
+        // ScrollRect
+        GameObject scrollGO = GameObject.Find("LevelScroll");
+        if (scrollGO != null)
+        {
+            ScrollRect sr = scrollGO.GetComponent<ScrollRect>();
+            if (sr != null)
+            {
+                sr.vertical          = true;
+                sr.horizontal        = false;
+                sr.movementType      = ScrollRect.MovementType.Elastic;
+                sr.scrollSensitivity = 30f;
+                sr.inertia           = true;
+                sr.decelerationRate  = 0.135f;
+            }
+
+            // Viewport — stretch-fill the scroll rect, add Mask
+            Transform viewportT = scrollGO.transform.Find("Viewport");
+            if (viewportT != null)
+            {
+                RectTransform vrt = viewportT.GetComponent<RectTransform>();
+                vrt.anchorMin = Vector2.zero;
+                vrt.anchorMax = Vector2.one;
+                vrt.offsetMin = Vector2.zero;
+                vrt.offsetMax = Vector2.zero;
+
+                Mask mask = viewportT.GetComponent<Mask>() ?? viewportT.gameObject.AddComponent<Mask>();
+                mask.showMaskGraphic = false;
+
+                // Viewport needs an Image for the Mask to work
+                if (viewportT.GetComponent<Image>() == null)
+                {
+                    var img = viewportT.gameObject.AddComponent<Image>();
+                    img.color = Color.clear;
+                    img.raycastTarget = false;
+                }
+            }
+        }
+
+        // Grid_Content — top-anchored so it grows downward
+        GameObject contentGO = GameObject.Find("Grid_Content");
+        if (contentGO != null)
+        {
+            RectTransform crt = contentGO.GetComponent<RectTransform>();
+            crt.anchorMin        = new Vector2(0f, 1f);
+            crt.anchorMax        = new Vector2(1f, 1f);
+            crt.pivot            = new Vector2(0.5f, 1f);
+            crt.offsetMin        = Vector2.zero;
+            crt.offsetMax        = Vector2.zero;
+            crt.anchoredPosition = Vector2.zero;
+
+            // Wire content into ScrollRect if not already set
+            if (scrollGO != null)
+            {
+                ScrollRect sr = scrollGO.GetComponent<ScrollRect>();
+                if (sr != null && sr.content == null)
+                    sr.content = crt;
+            }
+        }
+    }
+
+    // ── 2. Build / rebuild the button grid ───────────────────────
     private void BuildGrid()
     {
         GameObject content = GameObject.Find("Grid_Content");
@@ -37,6 +99,7 @@ public class LevelSelectedBuilder : MonoBehaviour
         foreach (Transform child in content.transform)
             Destroy(child.gameObject);
 
+        // GridLayoutGroup
         GridLayoutGroup grid = content.GetComponent<GridLayoutGroup>()
             ?? content.AddComponent<GridLayoutGroup>();
         grid.cellSize        = new Vector2(200, 200);
@@ -46,28 +109,31 @@ public class LevelSelectedBuilder : MonoBehaviour
         grid.constraintCount = 3;
         grid.childAlignment  = TextAnchor.UpperCenter;
 
+        // ContentSizeFitter — vertical only so width stays screen-wide
         ContentSizeFitter csf = content.GetComponent<ContentSizeFitter>()
             ?? content.AddComponent<ContentSizeFitter>();
-        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        csf.verticalFit   = ContentSizeFitter.FitMode.PreferredSize;
+        csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
 
-        int unlockedLevel = PlayerPrefs.GetInt("HighestUnlockedLevel", 1);
+        int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
 
         for (int i = 1; i <= 15; i++)
         {
             bool unlocked = i <= unlockedLevel;
-            int  stars    = PlayerPrefs.GetInt("Level_" + i + "_Stars", 0);
+            int  stars    = PlayerPrefs.GetInt("OrbitDrop_Level_" + i + "_Stars", 0);
             SpawnButton(content.transform, i, unlocked, stars);
         }
 
+        // Force layout rebuild so ContentSizeFitter calculates correct height
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(content.GetComponent<RectTransform>());
+
         Debug.Log("[LevelSelectedBuilder] Built 15 buttons. Unlocked up to: " + unlockedLevel);
     }
 
     // ── Button factory ────────────────────────────────────────────
     private void SpawnButton(Transform parent, int i, bool unlocked, int stars)
     {
-        // Root
         var btnGO = new GameObject("LvlBtn_" + i);
         btnGO.transform.SetParent(parent, false);
 
@@ -76,16 +142,10 @@ public class LevelSelectedBuilder : MonoBehaviour
         {
             bg.sprite = _sprBtn;
             bg.type   = Image.Type.Sliced;
-            bg.color  = unlocked
-                ? new Color(0.10f, 0.35f, 0.85f, 1.00f)
-                : new Color(0.05f, 0.10f, 0.25f, 0.85f);
         }
-        else
-        {
-            bg.color = unlocked
-                ? new Color(0.10f, 0.35f, 0.85f, 1.00f)
-                : new Color(0.05f, 0.10f, 0.25f, 0.85f);
-        }
+        bg.color = unlocked
+            ? new Color(0.10f, 0.35f, 0.85f, 1.00f)
+            : new Color(0.05f, 0.10f, 0.25f, 0.85f);
 
         var btn = btnGO.AddComponent<Button>();
         btn.targetGraphic = bg;
@@ -96,14 +156,11 @@ public class LevelSelectedBuilder : MonoBehaviour
         cb.colorMultiplier  = 1f;
         btn.colors = cb;
 
-        if (unlocked)
-            BuildUnlockedContent(btnGO.transform, i, stars);
-        else
-            BuildLockedContent(btnGO.transform, i);
+        if (unlocked) BuildUnlockedContent(btnGO.transform, i, stars);
+        else          BuildLockedContent(btnGO.transform, i);
 
-        // Click handler
-        int   levelNum   = i;
-        bool  isUnlocked = unlocked;
+        int  levelNum   = i;
+        bool isUnlocked = unlocked;
         btn.onClick.AddListener(() =>
         {
             if (!isUnlocked) return;
@@ -116,11 +173,10 @@ public class LevelSelectedBuilder : MonoBehaviour
     // ── Unlocked: large number + cyan stars ───────────────────────
     private void BuildUnlockedContent(Transform parent, int level, int stars)
     {
-        // Number
         var numGO  = MakeRect(parent, "Number");
         var numRT  = numGO.GetComponent<RectTransform>();
-        numRT.anchorMin = new Vector2(0f,    0.35f);
-        numRT.anchorMax = new Vector2(1f,    1.00f);
+        numRT.anchorMin = new Vector2(0f, 0.35f);
+        numRT.anchorMax = new Vector2(1f, 1.00f);
         numRT.offsetMin = numRT.offsetMax = Vector2.zero;
         var numTmp = numGO.AddComponent<TextMeshProUGUI>();
         numTmp.text      = level.ToString();
@@ -129,7 +185,6 @@ public class LevelSelectedBuilder : MonoBehaviour
         numTmp.color     = Color.white;
         numTmp.alignment = TextAlignmentOptions.Center;
 
-        // Stars row
         var starsGO = MakeRect(parent, "Stars");
         var starsRT = starsGO.GetComponent<RectTransform>();
         starsRT.anchorMin = new Vector2(0.05f, 0.00f);
@@ -138,30 +193,25 @@ public class LevelSelectedBuilder : MonoBehaviour
         var hlg = starsGO.AddComponent<HorizontalLayoutGroup>();
         hlg.childAlignment        = TextAnchor.MiddleCenter;
         hlg.spacing               = 6f;
-        hlg.childForceExpandWidth = false;
-        hlg.childForceExpandHeight= false;
+        hlg.childForceExpandWidth  = false;
+        hlg.childForceExpandHeight = false;
 
         for (int s = 1; s <= 3; s++)
         {
             var starGO  = MakeRect(starsGO.transform, "Star" + s);
-            var starRT  = starGO.GetComponent<RectTransform>();
-            starRT.sizeDelta = new Vector2(32, 32);
+            starGO.GetComponent<RectTransform>().sizeDelta = new Vector2(32, 32);
             var starImg = starGO.AddComponent<Image>();
             bool earned = s <= stars;
-            if (earned && _sprStarFilled != null)
-                starImg.sprite = _sprStarFilled;
-            else if (!earned && _sprStarEmpty != null)
-                starImg.sprite = _sprStarEmpty;
-            starImg.color = earned
-                ? new Color(0.00f, 0.90f, 1.00f, 1.00f)   // cyan — earned
-                : new Color(0.20f, 0.20f, 0.30f, 0.60f);  // dark — empty
+            starImg.sprite = earned ? _sprStarFilled : _sprStarEmpty;
+            starImg.color  = earned
+                ? new Color(0.00f, 0.90f, 1.00f, 1.00f)
+                : new Color(0.20f, 0.20f, 0.30f, 0.60f);
         }
     }
 
-    // ── Locked: gold lock icon + small number ────────────────────
+    // ── Locked: gold lock icon + small number ─────────────────────
     private void BuildLockedContent(Transform parent, int level)
     {
-        // Lock icon
         var lockGO  = MakeRect(parent, "LockIcon");
         var lockRT  = lockGO.GetComponent<RectTransform>();
         lockRT.anchorMin = new Vector2(0.20f, 0.20f);
@@ -171,7 +221,6 @@ public class LevelSelectedBuilder : MonoBehaviour
         lockImg.color = new Color(1f, 0.75f, 0.10f, 0.90f);
         if (_sprLock != null) lockImg.sprite = _sprLock;
 
-        // Small level number at bottom
         var snGO  = MakeRect(parent, "SmallNum");
         var snRT  = snGO.GetComponent<RectTransform>();
         snRT.anchorMin = new Vector2(0f, 0.00f);
@@ -184,10 +233,10 @@ public class LevelSelectedBuilder : MonoBehaviour
         snTmp.alignment = TextAlignmentOptions.Center;
     }
 
-    // ── Header ───────────────────────────────────────────────────
+    // ── Header ────────────────────────────────────────────────────
     private void UpdateHeader()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("HighestUnlockedLevel", 1);
+        int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
         int completed     = Mathf.Max(0, unlockedLevel - 1);
 
         var progressText = GameObject.Find("Progress_Text");
@@ -212,7 +261,7 @@ public class LevelSelectedBuilder : MonoBehaviour
         }
     }
 
-    // ── Background ───────────────────────────────────────────────
+    // ── Background ────────────────────────────────────────────────
     private void UpdateBackground()
     {
         var bg = GameObject.Find("Background");
@@ -228,13 +277,10 @@ public class LevelSelectedBuilder : MonoBehaviour
         img.color = new Color(0.03f, 0.06f, 0.15f, 1f);
     }
 
-    // ── Back button (wire in Inspector) ──────────────────────────
-    public void BackToMainMenu()
-    {
-        SceneManager.LoadScene("MainMenu");
-    }
+    // ── Back button ───────────────────────────────────────────────
+    public void BackToMainMenu() => SceneManager.LoadScene("MainMenu");
 
-    // ── Utility ─────────────────────────────────────────────────
+    // ── Utility ───────────────────────────────────────────────────
     private static GameObject MakeRect(Transform parent, string name)
     {
         var go = new GameObject(name);

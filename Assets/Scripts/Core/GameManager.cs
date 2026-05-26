@@ -13,8 +13,9 @@ public class GameManager : MonoBehaviour
     public int       Level        => _currentLevel;   // alias kept for HUD/UI callers
     public int       Lives        { get; private set; }
 
-    private int  _currentLevel    = 1;
-    private bool _gameOverCalled  = false;
+    private int  _currentLevel       = 1;
+    private bool _gameOverCalled     = false;
+    private bool _levelCompleteShown = false;
 
     public event Action<GameState> OnStateChanged;
     public event Action<int>       OnLivesChanged;
@@ -62,16 +63,23 @@ public class GameManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log("[GameManager] OnSceneLoaded: " + scene.name + "  State=" + State);
-        if (scene.name == GameScene || scene.name == Game2DScene)
+        if (scene.name == GameScene || scene.name == Game2DScene || IsLevelScene(scene.name))
             BeginGame();
         else if (scene.name == MenuScene)
             SetState(GameState.MainMenu);
     }
 
+    // Matches "Level1", "Level2" … "Level15"
+    private static bool IsLevelScene(string name)
+        => name.StartsWith("Level") && int.TryParse(name.Substring(5), out _);
+
     private void BeginGame()
     {
-        _currentLevel   = 1;
-        _gameOverCalled = false;
+        // Read the level the player selected from Level Select.
+        // Defaults to 1 if the game was launched directly (not via Level Select).
+        _currentLevel        = GameProgressManager.SelectedLevel;
+        _gameOverCalled      = false;
+        _levelCompleteShown  = false;
         Lives = StartLives;
         ScoreManager.Instance?.ResetForNewGame();
         OnLevelChanged?.Invoke(_currentLevel);
@@ -123,33 +131,18 @@ public class GameManager : MonoBehaviour
     public void OnLevelComplete()
     {
         if (State != GameState.Playing) return;
+        if (_levelCompleteShown) return;
+        _levelCompleteShown = true;
+
         Time.timeScale = 0;
         SetState(GameState.LevelComplete);
+
+        int stars = Mathf.Clamp(Lives, 1, 3);
+        GameProgressManager.CompleteLevel(_currentLevel, stars);
+        StarRatingUI.Instance?.ShowStars(Lives);
+
+        Debug.Log("[GameManager] OnLevelComplete — showing WinPanel for level " + _currentLevel);
         LevelCompleteUI2D.Instance?.Show(_currentLevel, 500);
-    }
-
-    public void AdvanceLevel()
-    {
-        Time.timeScale = 1f;
-        _currentLevel++;
-        OnLevelChanged?.Invoke(_currentLevel);
-        if (_currentLevel > 15)
-        {
-            ShowWinPanel();
-        }
-        else
-        {
-            SetState(GameState.Playing);
-            LevelManager.Instance?.LoadLevel(_currentLevel);
-        }
-    }
-
-    public void ShowWinPanel()
-    {
-        _gameOverCalled = false;
-        Lives = StartLives;
-        _currentLevel = 1;
-        SceneManager.LoadScene(Game2DSceneIndex);
     }
 
     private void SetState(GameState newState)

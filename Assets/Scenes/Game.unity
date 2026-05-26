@@ -1252,9 +1252,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bcd80dd6d5207a4c948c11912c60d1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelCompleteUI2D
+  panelRoot: {fileID: 277521126}
   group: {fileID: 277521129}
   titleText: {fileID: 1195714792}
   subtitleText: {fileID: 560903539}
+  starsText: {fileID: 0}
   bonusText: {fileID: 295665381}
   nextLevelBtn: {fileID: 1294863330}
 --- !u!225 &277521129
@@ -4123,7 +4125,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &947982006
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4168,7 +4170,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947982005}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0

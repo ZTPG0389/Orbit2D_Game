@@ -3,12 +3,79 @@ using UnityEngine;
 [RequireComponent(typeof(CircleCollider2D))]
 public class TargetRing2D : MonoBehaviour
 {
+    [Header("Wing Animation")]
+    [SerializeField] private Transform wingLeft;
+    [SerializeField] private Transform wingRight;
+    [SerializeField] private float wingFlapSpeed = 1.2f;
+    [SerializeField] private float wingFlapAmount = 12f;
+
+    [Header("Body Pulse")]
+    [SerializeField] private Transform visualRoot;
+    [SerializeField] private float pulseSpeed = 1.5f;
+    [SerializeField] private float pulseAmount = 0.04f;
+
+    private Vector3 _visualStartScale;
     private bool _hit;
+
+    void Start()
+    {
+        if (visualRoot == null && transform.childCount > 0)
+            visualRoot = transform.GetChild(0);
+
+        if (visualRoot != null)
+            _visualStartScale = visualRoot.localScale;
+
+        if (wingLeft == null || wingRight == null)
+            FindWings();
+    }
+
+    void Update()
+    {
+        if (_hit) return;
+        float t = Time.time;
+
+        float wingAngle = Mathf.Sin(t * wingFlapSpeed) * wingFlapAmount;
+        if (wingLeft != null)
+            wingLeft.localRotation = Quaternion.Euler(0, 0, wingAngle);
+        if (wingRight != null)
+            wingRight.localRotation = Quaternion.Euler(0, 0, -wingAngle);
+
+        if (visualRoot != null)
+        {
+            float pulse = 1f + Mathf.Sin(t * pulseSpeed) * pulseAmount;
+            visualRoot.localScale = _visualStartScale * pulse;
+        }
+    }
+
+    void FindWings()
+    {
+        foreach (Transform child in transform)
+        {
+            string n = child.name.ToLower();
+            if (wingLeft == null &&
+                (n.Contains("left") || n.Contains("wing") || n.Contains("solar") || n.Contains("panel")))
+            {
+                wingLeft = child;
+                continue;
+            }
+            if (wingRight == null && n.Contains("right"))
+            {
+                wingRight = child;
+            }
+        }
+
+        if (wingLeft == null && transform.childCount > 0)
+            wingLeft = transform.GetChild(0);
+        if (wingRight == null && transform.childCount > 1)
+            wingRight = transform.GetChild(1);
+    }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (_hit || !other.CompareTag("Ball")) return;
         _hit = true;
+
+        StartCoroutine(HitEffect());
 
         OrbiterBall2D ball = other.GetComponent<OrbiterBall2D>();
         if (ball != null) ball.HasHit = true;
@@ -25,6 +92,22 @@ public class TargetRing2D : MonoBehaviour
 #endif
         }
 
-        Destroy(gameObject);
+        Destroy(gameObject, 0.3f);
+    }
+
+    System.Collections.IEnumerator HitEffect()
+    {
+        float elapsed = 0f;
+        float duration = 0.3f;
+        Vector3 originalScale = transform.localScale;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            transform.Rotate(0, 0, 720f * Time.deltaTime);
+            float scale = Mathf.Lerp(1.2f, 0f, t);
+            transform.localScale = originalScale * scale;
+            yield return null;
+        }
     }
 }

@@ -86,14 +86,112 @@ public static class AndroidBuilder
         LogReport(report, "Mono");
     }
 
+    // ── Batch-mode Mono entry point (dev builds, low disk) ───
+    public static void BuildAndroidMono()
+    {
+        Debug.Log("[AndroidBuilder] Batch build started — Mono ARM64");
+
+        if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+
+        ApplyAndroidSettings(ScriptingImplementation.Mono2x);
+
+        var scenes = GetEnabledScenes();
+        if (scenes.Count == 0)
+        {
+            Debug.LogError("[AndroidBuilder] No enabled scenes — aborting.");
+            EditorApplication.Exit(1); return;
+        }
+
+        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+        {
+            scenes           = scenes.ToArray(),
+            locationPathName = OutputPath,
+            target           = BuildTarget.Android,
+            options          = BuildOptions.Development
+        });
+
+        if (report.summary.result == BuildResult.Succeeded)
+        {
+            Debug.Log($"[AndroidBuilder] SUCCESS — {report.summary.totalSize/1048576.0:F1} MB → {OutputPath}");
+            EditorApplication.Exit(0);
+        }
+        else
+        {
+            Debug.LogError($"[AndroidBuilder] FAILED — errors: {report.summary.totalErrors}");
+            EditorApplication.Exit(1);
+        }
+    }
+
+    // ── Batch-mode IL2CPP entry point (called via -executeMethod) ────
+    public static void BuildAndroid()
+    {
+        Debug.Log("[AndroidBuilder] Batch build started — IL2CPP ARM64");
+
+        if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+
+        ApplyAndroidSettings(ScriptingImplementation.IL2CPP);
+
+        var scenes = GetEnabledScenes();
+        if (scenes.Count == 0)
+        {
+            Debug.LogError("[AndroidBuilder] No enabled scenes — aborting.");
+            EditorApplication.Exit(1); return;
+        }
+
+        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+        {
+            scenes           = scenes.ToArray(),
+            locationPathName = OutputPath,
+            target           = BuildTarget.Android,
+            options          = BuildOptions.None
+        });
+
+        if (report.summary.result == BuildResult.Succeeded)
+        {
+            Debug.Log($"[AndroidBuilder] SUCCESS — {report.summary.totalSize/1048576.0:F1} MB → {OutputPath}");
+            EditorApplication.Exit(0);
+        }
+        else
+        {
+            Debug.LogError($"[AndroidBuilder] FAILED — errors: {report.summary.totalErrors}");
+            EditorApplication.Exit(1);
+        }
+    }
+
     // ── Helpers ───────────────────────────────────────────────
+
+    static void ApplyAndroidSettings(ScriptingImplementation backend)
+    {
+        // Scripting backend
+        if (PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android) != backend)
+        {
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, backend);
+            Debug.Log($"[AndroidBuilder] Backend → {backend}");
+        }
+
+        // ARM64 + ARMv7 for broadest device support (Android 8+)
+        var arch = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
+        if (PlayerSettings.Android.targetArchitectures != arch)
+        {
+            PlayerSettings.Android.targetArchitectures = arch;
+            Debug.Log($"[AndroidBuilder] Architecture → ARM64 | ARMv7");
+        }
+
+        // OpenGLES3 only — remove Vulkan to avoid driver issues on some devices
+        PlayerSettings.SetGraphicsAPIs(BuildTarget.Android,
+            new[] { UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3 });
+        Debug.Log("[AndroidBuilder] Graphics API → OpenGLES3 only");
+
+        // API levels
+        PlayerSettings.Android.minSdkVersion      = AndroidSdkVersions.AndroidApiLevel26;
+        PlayerSettings.Android.targetSdkVersion   = AndroidSdkVersions.AndroidApiLevelAuto;
+    }
 
     static void SetScriptingBackend(ScriptingImplementation backend)
     {
-        var current = PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android);
-        if (current == backend) return;
-        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, backend);
-        Debug.Log($"[AndroidBuilder] Switched scripting backend → {backend}");
+        ApplyAndroidSettings(backend);
     }
 
     static bool SwitchToAndroid()

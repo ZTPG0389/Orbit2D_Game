@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Title Sprite — PAUSED</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0e1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+  font-family: monospace;
+}
+
+.note {
+  color: rgba(0,229,255,0.4);
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+
+/* ── sprite canvas ── */
+.canvas {
+  width: 500px;
+  height: 120px;
+  background: #071525;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── inner group: padlock + text ── */
+.group {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+/* ── padlock ── */
+.padlock {
+  flex-shrink: 0;
+  filter:
+    drop-shadow(0 0 8px rgba(255,215,0,0.8))
+    drop-shadow(0 0 16px rgba(255,215,0,0.35));
+}
+
+/* ── PAUSED text ── */
+.title {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 42px;
+  color: #ffffff;
+  letter-spacing: 6px;
+  white-space: nowrap;
+  text-shadow:
+    0 0 12px rgba(255,255,255,0.5),
+    0 0 25px rgba(0,229,255,0.25);
+}
+</style>
+</head>
+<body>
+
+<p class="note">Screenshot the box below (500 × 120) and import as PNG into Unity</p>
+
+<div class="canvas">
+  <div class="group">
+
+    <!-- Golden Padlock SVG -->
+    <svg class="padlock" width="52" height="82" viewBox="0 0 52 82" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stop-color="#ffe566"/>
+          <stop offset="50%"  stop-color="#ffd700"/>
+          <stop offset="100%" stop-color="#b8860b"/>
+        </linearGradient>
+        <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="#cc9900"/>
+          <stop offset="50%"  stop-color="#ffd700"/>
+          <stop offset="100%" stop-color="#cc9900"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Shackle (arch) — quadratic bezier for clean arch shape -->
+      <path d="M 14,42 L 14,28 Q 26,8 38,28 L 38,42"
+            fill="none"
+            stroke="url(#g2)"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+      <!-- Shackle inner highlight -->
+      <path d="M 17,42 L 17,30 Q 26,14 35,30 L 35,42"
+            fill="none"
+            stroke="rgba(255,255,180,0.2)"
+            stroke-width="1.2"
+            stroke-linecap="round"/>
+
+      <!-- Body drop shadow -->
+      <rect x="4.5" y="42.5" width="43" height="36" rx="4" fill="rgba(0,0,0,0.35)"/>
+
+      <!-- Body fill -->
+      <rect x="3.5" y="41" width="45" height="38" rx="4"
+            fill="url(#g1)"/>
+
+      <!-- Body top highlight band -->
+      <rect x="3.5" y="41" width="45" height="9" rx="4"
+            fill="rgba(255,255,200,0.2)"/>
+
+      <!-- Body stroke -->
+      <rect x="3.5" y="41" width="45" height="38" rx="4"
+            fill="none"
+            stroke="#cc9900"
+            stroke-width="1.2"/>
+
+      <!-- Keyhole circle -->
+      <circle cx="26" cy="56" r="5.5" fill="#1a0a00"/>
+
+      <!-- Keyhole slot -->
+      <rect x="23.5" y="59" width="5" height="8" rx="1.5" fill="#1a0a00"/>
+
+      <!-- Keyhole rim glow -->
+      <circle cx="24.5" cy="54" r="2" fill="rgba(255,220,80,0.18)"/>
+    </svg>
+
+    <!-- PAUSED text -->
+    <span class="title">PAUSED</span>
+
+  </div>
+</div>
+
+</body>
+</html>

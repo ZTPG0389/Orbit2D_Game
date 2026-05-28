@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Corner Bracket Sprites</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #040f1e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 48px;
+  gap: 24px;
+}
+
+.note {
+  font-family: monospace;
+  font-size: 11px;
+  color: rgba(0,229,255,0.4);
+  letter-spacing: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 100px 100px;
+  grid-template-rows: 100px 100px;
+  gap: 24px;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  background: #071525;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.bracket {
+  width: 60px;
+  height: 60px;
+  filter: drop-shadow(0 0 5px #00e5ff) drop-shadow(0 0 10px rgba(0,229,255,0.4));
+}
+
+.tl { border-top: 3px solid #00e5ff; border-left:  3px solid #00e5ff; }
+.tr { border-top: 3px solid #00e5ff; border-right: 3px solid #00e5ff; }
+.bl { border-bottom: 3px solid #00e5ff; border-left:  3px solid #00e5ff; }
+.br { border-bottom: 3px solid #00e5ff; border-right: 3px solid #00e5ff; }
+
+.label {
+  font-family: monospace;
+  font-size: 12px;
+  color: rgba(0,229,255,0.5);
+}
+</style>
+</head>
+<body>
+
+<p class="note">Screenshot each corner individually for Unity sprite import</p>
+
+<div class="grid">
+
+  <div class="cell">
+    <div class="bracket tl"></div>
+    <span class="label">Corner0</span>
+  </div>
+
+  <div class="cell">
+    <div class="bracket tr"></div>
+    <span class="label">Corner1</span>
+  </div>
+
+  <div class="cell">
+    <div class="bracket bl"></div>
+    <span class="label">Corner2</span>
+  </div>
+
+  <div class="cell">
+    <div class="bracket br"></div>
+    <span class="label">Corner3</span>
+  </div>
+
+</div>
+</body>
+</html>

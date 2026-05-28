@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cyberpunk Pause Panel — Sprite Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0e1a;padding:48px 24px 64px;font-family:'Orbitron',monospace}
+
+/* ── page header ── */
+h1{text-align:center;color:#00e5ff;font-size:16px;letter-spacing:8px;margin-bottom:6px;
+   text-shadow:0 0 20px rgba(0,229,255,0.7)}
+.note{text-align:center;color:rgba(0,229,255,0.4);font-size:9px;letter-spacing:4px;margin-bottom:52px}
+
+/* ── sprite grid ── */
+.grid{display:flex;flex-wrap:wrap;gap:52px;justify-content:center;align-items:flex-start}
+.sbox{display:flex;flex-direction:column;align-items:center;gap:10px}
+.slabel{color:#00e5ff;font-size:9px;letter-spacing:3px;text-shadow:0 0 8px rgba(0,229,255,0.5)}
+.ssize{color:rgba(0,229,255,0.28);font-size:8px;letter-spacing:2px}
+
+/* ── S1 circuit overlay ── */
+.s1{width:400px;height:500px;background:#071525;position:relative;overflow:hidden;
+    border:2px solid rgba(0,229,255,0.5);border-radius:6px;
+    box-shadow:0 0 40px rgba(0,229,255,0.2),0 0 80px rgba(0,50,100,0.3),
+               inset 0 0 60px rgba(0,20,60,0.9)}
+.s1 svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* ── S2 corners grid ── */
+.corners-grid{display:grid;grid-template-columns:50px 50px;gap:18px}
+.crnr{width:50px;height:50px;filter:drop-shadow(0 0 6px #00e5ff) drop-shadow(0 0 12px rgba(0,229,255,0.4))}
+
+/* ── S3 title ── */
+.s3{width:380px;height:100px;background:transparent;display:flex;align-items:center;
+    padding:0 24px;gap:18px}
+.lock{flex-shrink:0;filter:drop-shadow(0 0 10px rgba(255,215,0,0.7)) drop-shadow(0 0 20px rgba(255,215,0,0.3))}
+.paused{font-family:'Orbitron',monospace;font-weight:700;font-size:36px;color:#fff;
+        letter-spacing:8px;white-space:nowrap;
+        text-shadow:0 0 15px rgba(255,255,255,0.5),0 0 35px rgba(0,229,255,0.3)}
+
+/* ── S4-6 buttons ── */
+.bwrap{/* outer wrapper carries the glow so clip-path doesn't eat it */}
+.bwrap-cyan  {filter:drop-shadow(0 0 10px rgba(0,229,255,0.6)) drop-shadow(0 0 20px rgba(0,229,255,0.3))}
+.bwrap-blue  {filter:drop-shadow(0 0 10px rgba(0,80,255,0.5))  drop-shadow(0 0 18px rgba(0,60,200,0.25))}
+.bwrap-orange{filter:drop-shadow(0 0 10px rgba(200,80,0,0.55)) drop-shadow(0 0 18px rgba(150,60,0,0.25))}
+
+.btn{width:320px;height:65px;position:relative;display:flex;align-items:center;
+     justify-content:center;border-radius:4px;overflow:hidden;
+     clip-path:polygon(10px 0%,calc(100% - 10px) 0%,100% 10px,100% calc(100% - 10px),
+                       calc(100% - 10px) 100%,10px 100%,0% calc(100% - 10px),0% 10px)}
+
+/* micro-pattern layer (behind text) */
+.bmicro{position:absolute;inset:0;z-index:1}
+
+.btn-text{font-family:'Orbitron',monospace;font-weight:700;font-size:18px;
+          letter-spacing:4px;position:relative;z-index:2;
+          display:flex;align-items:center;gap:14px}
+.bline{display:inline-block;width:20px;height:1px;opacity:0.7}
+
+/* Resume */
+.btn-resume{background:linear-gradient(135deg,#041830,#062040);border:2px solid #00e5ff}
+.btn-resume .btn-text{color:#00e5ff}
+.btn-resume .bline{background:#00e5ff}
+.btn-resume .bmicro{
+  background-image:
+    repeating-linear-gradient(transparent,transparent 7px,rgba(0,229,255,0.028) 7px,rgba(0,229,255,0.028) 8px),
+    repeating-linear-gradient(90deg,transparent,transparent 7px,rgba(0,229,255,0.028) 7px,rgba(0,229,255,0.028) 8px)}
+
+/* Settings */
+.btn-settings{background:linear-gradient(135deg,#040828,#060a35);border:2px solid #3366ff}
+.btn-settings .btn-text{color:#4488ff}
+.btn-settings .bline{background:#4488ff}
+.btn-settings .bmicro{
+  background-image:
+    repeating-linear-gradient(transparent,transparent 7px,rgba(0,80,255,0.028) 7px,rgba(0,80,255,0.028) 8px),
+    repeating-linear-gradient(90deg,transparent,transparent 7px,rgba(0,80,255,0.028) 7px,rgba(0,80,255,0.028) 8px)}
+
+/* Main Menu */
+.btn-menu{background:linear-gradient(135deg,#1a0800,#2a1000);border:2px solid #cc5500}
+.btn-menu .btn-text{color:#ff8800}
+.btn-menu .bline{background:#ff8800}
+.btn-menu .bmicro{
+  background-image:
+    repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,140,0,0.04) 3px,rgba(255,140,0,0.04) 4px),
+    repeating-linear-gradient(transparent,transparent 11px,rgba(255,140,0,0.025) 11px,rgba(255,140,0,0.025) 12px)}
+
+/* ── S7 heart ── */
+.heart{width:40px;height:40px;filter:drop-shadow(0 0 8px rgba(255,30,60,0.9)) drop-shadow(0 0 14px rgba(255,0,40,0.5))}
+</style>
+</head>
+<body>
+
+<h1>PAUSE PANEL SPRITES</h1>
+<p class="note">◆&nbsp;&nbsp;SCREENSHOT EACH LABELLED SPRITE FOR UNITY IMPORT&nbsp;&nbsp;◆</p>
+
+<div class="grid">
+
+<!-- ════════════════════════════════════════════════════════════
+     SPRITE 1 — CircuitOverlay  400 × 500
+════════════════════════════════════════════════════════════ -->
+<div class="sbox">
+  <div class="s1">
+    <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <!-- subtle inner glow gradient -->
+        <radialGradient id="rg" cx="50%" cy="50%" r="70%">
+          <stop offset="0%"   stop-color="rgba(0,30,80,0)"/>
+          <stop offset="100%" stop-color="rgba(0,10,30,0.55)"/>
+        </radialGradient>
+      </defs>
+
+      <!-- circuit traces — horizontal + vertical, 90-degree turns only -->
+      <g stroke="rgba(0,229,255,0.15)" stroke-width="1" fill="none" stroke-linecap="square">
+        <polyline points="0,48  90,48  90,120 190,120 190,48  290,48"/>
+        <polyline points="290,48 290,0"/>
+        <polyline points="50,0  50,82  150,82 150,160 330,160 330,82 400,82"/>
+        <polyline points="160,0 160,48"/>
+        <polyline points="0,200 80,200  80,136 220,136"/>
+        <polyline points="220,136 220,220 370,220 370,160 400,160"/>
+        <polyline points="0,240 100,240 100,310 200,310 200,240 400,240"/>
+        <polyline points="60,160 60,200"/>
+        <polyline points="340,220 340,290 260,290 260,370 400,370"/>
+        <polyline points="0,310 130,310 130,390 220,390 220,310 260,310"/>
+        <polyline points="0,400 70,400  70,450 180,450 180,400 310,400 310,500"/>
+        <polyline points="130,390 130,500"/>
+        <polyline points="0,478 110,478 110,500"/>
+        <polyline points="340,290 340,370"/>
+        <polyline points="400,300 370,300 370,370 400,370"/>
+        <polyline points="260,370 260,400"/>
+        <polyline points="200,390 200,450"/>
+        <polyline points="400,430 340,430 340,370"/>
+        <polyline points="240,0 240,48 330,48"/>
+        <polyline points="350,0 350,48"/>
+        <polyline points="0,140 50,140"/>
+      </g>
+
+      <!-- junction dots at every bend -->
+      <g fill="rgba(0,229,255,0.38)">
+        <circle cx="90"  cy="48"  r="2.5"/><circle cx="190" cy="48"  r="2.5"/>
+        <circle cx="190" cy="120" r="2.5"/><circle cx="290" cy="48"  r="2.5"/>
+        <circle cx="50"  cy="82"  r="2.5"/><circle cx="150" cy="82"  r="2.5"/>
+        <circle cx="150" cy="160" r="2.5"/><circle cx="330" cy="160" r="2.5"/>
+        <circle cx="330" cy="82"  r="2.5"/><circle cx="80"  cy="200" r="2.5"/>
+        <circle cx="80"  cy="136" r="2.5"/><circle cx="220" cy="136" r="2.5"/>
+        <circle cx="220" cy="220" r="2.5"/><circle cx="370" cy="220" r="2.5"/>
+        <circle cx="370" cy="160" r="2.5"/><circle cx="100" cy="240" r="2.5"/>
+        <circle cx="100" cy="310" r="2.5"/><circle cx="200" cy="310" r="2.5"/>
+        <circle cx="200" cy="240" r="2.5"/><circle cx="340" cy="290" r="2.5"/>
+        <circle cx="260" cy="290" r="2.5"/><circle cx="260" cy="370" r="2.5"/>
+        <circle cx="130" cy="310" r="2.5"/><circle cx="130" cy="390" r="2.5"/>
+        <circle cx="220" cy="390" r="2.5"/><circle cx="260" cy="310" r="2"/>
+        <circle cx="70"  cy="400" r="2.5"/><circle cx="70"  cy="450" r="2.5"/>
+        <circle cx="180" cy="450" r="2.5"/><circle cx="180" cy="400" r="2.5"/>
+        <circle cx="310" cy="400" r="2.5"/><circle cx="370" cy="300" r="2.5"/>
+        <circle cx="370" cy="370" r="2.5"/><circle cx="340" cy="370" r="2.5"/>
+        <circle cx="340" cy="430" r="2.5"/><circle cx="260" cy="400" r="2.5"/>
+        <circle cx="200" cy="450" r="2"/>  <circle cx="240" cy="48"  r="2.5"/>
+        <circle cx="330" cy="48"  r="2.5"/><circle cx="60"  cy="200" r="2"/>
+      </g>
+
+      <!-- PCB vias (hollow circles = plated through-holes) -->
+      <g stroke="rgba(0,229,255,0.4)" stroke-width="1.2" fill="rgba(0,15,35,0.9)">
+        <circle cx="90"  cy="120" r="3.5"/><circle cx="330" cy="160" r="3.5"/>
+        <circle cx="60"  cy="200" r="3.5"/><circle cx="220" cy="220" r="3.5"/>
+        <circle cx="340" cy="290" r="3.5"/><circle cx="130" cy="390" r="3.5"/>
+        <circle cx="310" cy="400" r="3.5"/><circle cx="200" cy="390" r="3.5"/>
+      </g>
+
+      <!-- corner darkening -->
+      <rect x="0"   y="0"   width="50" height="50" fill="rgba(0,0,0,0.3)" rx="6"/>
+      <rect x="350" y="0"   width="50" height="50" fill="rgba(0,0,0,0.3)" rx="6"/>
+      <rect x="0"   y="450" width="50" height="50" fill="rgba(0,0,0,0.3)" rx="6"/>
+      <rect x="350" y="450" width="50" height="50" fill="rgba(0,0,0,0.3)" rx="6"/>
+
+      <!-- edge vignette -->
+      <rect width="400" height="500" fill="url(#rg)"/>
+    </svg>
+  </div>
+  <span class="slabel">CircuitOverlay</span>
+  <span class="ssize">400 × 500</span>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SPRITE 2 — Corner Brackets  50 × 50 × 4
+════════════════════════════════════════════════════════════ -->
+<div class="sbox">
+  <div class="corners-grid">
+
+    <!-- Top-Left -->
+    <svg class="crnr" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="4,46 4,4 46,4"
+        fill="none" stroke="#00e5ff" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+    </svg>
+
+    <!-- Top-Right -->
+    <svg class="crnr" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="46,46 46,4 4,4"
+        fill="none" stroke="#00e5ff" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+    </svg>
+
+    <!-- Bottom-Left -->
+    <svg class="crnr" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="4,4 4,46 46,46"
+        fill="none" stroke="#00e5ff" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+    </svg>
+
+    <!-- Bottom-Right -->
+    <svg class="crnr" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="46,4 46,46 4,46"
+        fill="none" stroke="#00e5ff" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+    </svg>
+
+  </div>
+  <span class="slabel">Corner Brackets ×4</span>
+  <span class="ssize">50 × 50 each — transparent bg</span>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SPRITE 3 — Title Area  380 × 100
+════════════════════════════════════════════════════════════ -->
+<div class="sbox">
+  <div class="s3">
+
+    <!-- Padlock SVG -->
+    <svg class="lock" width="52" height="66" viewBox="0 0 52 66" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gld" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stop-color="#ffe566"/>
+          <stop offset="45%"  stop-color="#ffd700"/>
+          <stop offset="100%" stop-color="#a86800"/>
+        </linearGradient>
+        <linearGradient id="shk" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="#cc9900"/>
+          <stop offset="50%"  stop-color="#ffd700"/>
+          <stop offset="100%" stop-color="#cc9900"/>
+        </linearGradient>
+      </defs>
+      <!-- Shackle (arch): two vertical legs + quadratic bezier over top -->
+      <path d="M 14,34 L 14,20 Q 26,3 38,20 L 38,34"
+            fill="none" stroke="url(#shk)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Shackle inner highlight -->
+      <path d="M 17,34 L 17,21 Q 26,8 35,21 L 35,34"
+            fill="none" stroke="rgba(255,255,180,0.25)" stroke-width="2" stroke-linecap="round"/>
+      <!-- Body drop-shadow -->
+      <rect x="5" y="33" width="42" height="30" rx="4" fill="rgba(0,0,0,0.35)"/>
+      <!-- Body -->
+      <rect x="4" y="31" width="44" height="31" rx="4" ry="4" fill="url(#gld)" stroke="#9a6200" stroke-width="1.5"/>
+      <!-- Body top highlight -->
+      <rect x="4" y="31" width="44" height="9" rx="4" ry="4" fill="rgba(255,255,200,0.18)"/>
+      <!-- Keyhole — circle -->
+      <circle cx="26" cy="43" r="5.5" fill="#1e0900"/>
+      <!-- Keyhole — slot -->
+      <rect x="23.5" y="46" width="5" height="8" rx="1.5" fill="#1e0900"/>
+      <!-- Keyhole rim highlight -->
+      <circle cx="24.5" cy="41.5" r="2" fill="rgba(255,220,80,0.2)"/>
+    </svg>
+
+    <!-- PAUSED text -->
+    <span class="paused">PAUSED</span>
+
+  </div>
+  <span class="slabel">Title Area</span>
+  <span class="ssize">380 × 100 — transparent bg</span>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SPRITE 4 — Resume Button  320 × 65
+════════════════════════════════════════════════════════════ -->
+<div class="sbox">
+  <div class="bwrap bwrap-cyan">
+    <div class="btn btn-resume">
+      <div class="bmicro"></div>
+      <div class="btn-text">
+        <span class="bline"></span>
+        RESUME
+        <span class="bline"></span>
+      </div>
+    </div>
+  </div>
+  <span class="slabel">ResumeButton</span>
+  <span class="ssize">320 × 65</span>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SPRITE 5 — Settings Button  320 × 65
+════════════════════════════════════════════════════════════ -->
+<div class="sbox">
+  <div class="bwrap bwrap-blue">
+    <div class="btn btn-settings">
+      <div class="bmicro"></div>
+      <div class="btn-text">
+        <span class="bline"></span>
+        SETTINGS
+        <span class="bline"></span>
+      </div>
+    </div>
+  </div>
+  <span class="slabel">SettingsButton</span>
+  <span class="ssize">320 × 65</span>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SPRITE 6 — Main Menu Button  320 × 65
+════════════════════════════════════════════════════════════ -->
+<div class="sbox">
+  <div class="bwrap bwrap-orange">
+    <div class="btn btn-menu">
+      <div class="bmicro"></div>
+      <div class="btn-text">
+        <span class="bline"></span>
+        MAIN MENU
+        <span class="bline"></span>
+      </div>
+    </div>
+  </div>
+  <span class="slabel">MenuButton</span>
+  <span class="ssize">320 × 65</span>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SPRITE 7 — Heart (Lives)  40 × 40
+════════════════════════════════════════════════════════════ -->
+<div class="sbox">
+  <svg class="heart" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- shadow layer -->
+    <path d="M20,35 C20,35 3,24 3,13.5 C3,8 8,5 13,7 C16.5,8.5 19,11.5 20,14.5
+             C21,11.5 23.5,8.5 27,7 C32,5 37,8 37,13.5 C37,24 20,35 20,35Z"
+          fill="rgba(180,0,30,0.4)" transform="translate(1,1.5)"/>
+    <!-- main heart body -->
+    <path d="M20,35 C20,35 3,24 3,13.5 C3,8 8,5 13,7 C16.5,8.5 19,11.5 20,14.5
+             C21,11.5 23.5,8.5 27,7 C32,5 37,8 37,13.5 C37,24 20,35 20,35Z"
+          fill="#ff2244"/>
+    <!-- 3-D top-left highlight -->
+    <path d="M20,15 C19,12 16.5,9.5 14,8.5 C11.5,7.5 9.5,8.5 8.5,10.5
+             C9.5,9 12,8.5 14.5,9.5 C17,10.5 19,13 20,15.5Z"
+          fill="rgba(255,150,160,0.55)"/>
+    <!-- small specular dot -->
+    <ellipse cx="13" cy="11" rx="3.5" ry="2.5" fill="rgba(255,200,210,0.35)"/>
+  </svg>
+  <span class="slabel">Heart (Lives)</span>
+  <span class="ssize">40 × 40 — transparent bg</span>
+</div>
+
+</div><!-- /.grid -->
+</body>
+</html>

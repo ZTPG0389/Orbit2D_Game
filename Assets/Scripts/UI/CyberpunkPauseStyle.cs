@@ -13,30 +13,30 @@ public class CyberpunkPauseStyle : MonoBehaviour
     [SerializeField] TMP_FontAsset orbitronFont;
 
     // ── palette ───────────────────────────────────────────────────────────────
-    static readonly Color BgDark      = C("071525");
-    static readonly Color CyanFull    = C("00e5ff");
-    static readonly Color Gold        = C("ffd700");
-    static readonly Color BlueEdge    = C("3366ff");
-    static readonly Color BlueFace    = C("4488ff");
-    static readonly Color OrangeEdge  = C("cc5500");
-    static readonly Color OrangeFace  = C("ff8800");
-    static readonly Color HeartRed    = C("ff2244");
+    //static readonly Color BgDark = C("071525");
+    static readonly Color CyanFull = C("00e5ff");
+    static readonly Color Gold = C("ffd700");
+    static readonly Color BlueEdge = C("3366ff");
+    static readonly Color BlueFace = C("4488ff");
+    static readonly Color OrangeEdge = C("cc5500");
+    static readonly Color OrangeFace = C("ff8800");
+    static readonly Color HeartRed = C("ff2244");
 
     static Color C(string hex) { ColorUtility.TryParseHtmlString("#" + hex, out var c); return c; }
 
     // ── runtime refs ─────────────────────────────────────────────────────────
-    CanvasGroup       _parentGroup;
-    float             _prevAlpha;
+    CanvasGroup _parentGroup;
+    float _prevAlpha;
 
-    TextMeshProUGUI   _titleTMP;
-    Button            _resumeBtn, _settingsBtn, _menuBtn;
+    TextMeshProUGUI _titleTMP;
+    Button _resumeBtn, _settingsBtn, _menuBtn;
 
     readonly GameObject[] _corners = new GameObject[4];
-    readonly Transform[]  _heartXf = new Transform[3];
-    readonly Vector3[]    _heartBase = new Vector3[3];
+    readonly Transform[] _heartXf = new Transform[3];
+    readonly Vector3[] _heartBase = new Vector3[3];
 
-    Coroutine   _entranceCo;
-    Coroutine   _cornerPulseCo;
+    Coroutine _entranceCo;
+    Coroutine _cornerPulseCo;
     readonly Coroutine[] _heartCos = new Coroutine[3];
 
     bool _stylesApplied;
@@ -45,17 +45,17 @@ public class CyberpunkPauseStyle : MonoBehaviour
     void Awake()
     {
         _parentGroup = GetComponentInParent<CanvasGroup>();
-        _prevAlpha   = _parentGroup ? _parentGroup.alpha : 0f;
+        _prevAlpha = _parentGroup ? _parentGroup.alpha : 0f;
 
-        _titleTMP    = transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
-        _resumeBtn   = transform.Find("ResumeButton")?.GetComponent<Button>();
+        _titleTMP = transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+        _resumeBtn = transform.Find("ResumeButton")?.GetComponent<Button>();
         _settingsBtn = transform.Find("SettingsButton")?.GetComponent<Button>();
-        _menuBtn     = transform.Find("MenuButton")?.GetComponent<Button>();
+        _menuBtn = transform.Find("MenuButton")?.GetComponent<Button>();
 
         for (int i = 0; i < 3; i++)
         {
             var go = GameObject.Find($"Heart{i + 1}");
-            _heartXf[i]   = go ? go.transform : null;
+            _heartXf[i] = go ? go.transform : null;
             _heartBase[i] = _heartXf[i] ? _heartXf[i].localScale : Vector3.one;
         }
     }
@@ -88,39 +88,35 @@ public class CyberpunkPauseStyle : MonoBehaviour
     // ── style application ─────────────────────────────────────────────────────
     void ApplyAllStyles()
     {
-        ApplyPanelBg();
+        // ApplyPanelBg();
         ApplyTitle();
-        ApplyButton(_resumeBtn,   "RESUME",
+        ApplyButton(_resumeBtn, "RESUME",
             edgeColor: CyanFull,
-            bgColor:   new Color(0f,     0.898f, 1f,    0.06f));
+            bgColor: new Color(0f, 0.898f, 1f, 0.06f));
         ApplyButton(_settingsBtn, "SETTINGS",
             edgeColor: BlueEdge,
-            bgColor:   new Color(0f,     0.314f, 1f,    0.06f));
-        ApplyButton(_menuBtn,     "MAIN MENU",
+            bgColor: new Color(0f, 0.314f, 1f, 0.06f));
+        ApplyButton(_menuBtn, "MAIN MENU",
             edgeColor: OrangeEdge,
-            bgColor:   new Color(0.588f, 0.235f, 0f,    0.12f));
+            bgColor: new Color(0.588f, 0.235f, 0f, 0.12f));
         CreateCircuitOverlay();
         CreateCornerBrackets();
         StyleHearts();
     }
 
-    void ApplyPanelBg()
-    {
-        var img = GetComponent<Image>();
-        if (img) img.color = BgDark;
-    }
+
 
     void ApplyTitle()
     {
         if (_titleTMP == null) return;
 
         // 🔒 padlock + PAUSED — fallback to text padlock if emoji font missing
-        _titleTMP.text             = "\U0001F512 PAUSED";
-        _titleTMP.color            = Color.white;
-        _titleTMP.fontSize         = 34f;
+        _titleTMP.text = "\U0001F512 PAUSED";
+        _titleTMP.color = Color.white;
+        _titleTMP.fontSize = 34f;
         _titleTMP.characterSpacing = 12f;
-        _titleTMP.fontStyle        = FontStyles.Bold;
-        _titleTMP.alignment        = TextAlignmentOptions.Center;
+        _titleTMP.fontStyle = FontStyles.Bold;
+        _titleTMP.alignment = TextAlignmentOptions.Center;
         _titleTMP.enableWordWrapping = false;
         if (orbitronFont != null) _titleTMP.font = orbitronFont;
 
@@ -147,13 +143,13 @@ public class CyberpunkPauseStyle : MonoBehaviour
             // Disable Unity's built-in tint transition — CyberpunkButtonEffect owns hover
             var cols = btn.colors;
             cols.normalColor = cols.highlightedColor =
-            cols.pressedColor = cols.selectedColor   = Color.white;
+            cols.pressedColor = cols.selectedColor = Color.white;
             btn.colors = cols;
         }
 
         // Border glow via Outline mesh effect
         var outline = btn.GetComponent<Outline>() ?? btn.gameObject.AddComponent<Outline>();
-        outline.effectColor    = new Color(edgeColor.r, edgeColor.g, edgeColor.b, 0.7f);
+        outline.effectColor = new Color(edgeColor.r, edgeColor.g, edgeColor.b, 0.7f);
         outline.effectDistance = new Vector2(2f, 2f);
         outline.useGraphicAlpha = false;
 
@@ -161,12 +157,12 @@ public class CyberpunkPauseStyle : MonoBehaviour
         var tmp = btn.GetComponentInChildren<TextMeshProUGUI>();
         if (tmp != null)
         {
-            tmp.text             = labelText;
-            tmp.color            = edgeColor;
+            tmp.text = labelText;
+            tmp.color = edgeColor;
             tmp.characterSpacing = 6f;
-            tmp.fontStyle        = FontStyles.Bold;
-            tmp.fontSize         = 18f;
-            tmp.alignment        = TextAlignmentOptions.Center;
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.fontSize = 18f;
+            tmp.alignment = TextAlignmentOptions.Center;
             if (orbitronFont != null) tmp.font = orbitronFont;
             tmp.outlineWidth = 0.15f;
             tmp.outlineColor = new Color(edgeColor.r, edgeColor.g, edgeColor.b, 0.4f);
@@ -191,10 +187,10 @@ public class CyberpunkPauseStyle : MonoBehaviour
         rt.offsetMin = rt.offsetMax = Vector2.zero;
 
         var raw = go.GetComponent<RawImage>();
-        raw.texture      = GenCircuitTex();
-        raw.uvRect       = new Rect(0, 0, 22, 22); // ~28 px per tile on 600 px card
+        raw.texture = GenCircuitTex();
+        raw.uvRect = new Rect(0, 0, 22, 22); // ~28 px per tile on 600 px card
         raw.raycastTarget = false;
-        raw.color        = Color.white; // alpha is in the texture
+        raw.color = Color.white; // alpha is in the texture
 
         var le = go.AddComponent<LayoutElement>();
         le.ignoreLayout = true;
@@ -202,36 +198,50 @@ public class CyberpunkPauseStyle : MonoBehaviour
 
     void CreateCornerBrackets()
     {
-        var tex = GenCornerTex();
-        var spr = Sprite.Create(tex,
-                      new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-
-        // (anchor, pivot, localScale) for TL, TR, BL, BR
-        var cfg = new (Vector2 anc, Vector2 piv, Vector3 sc)[]
+        // Each corner gets its own correctly-oriented texture — no scale flipping.
+        // flipX=false/true mirrors the horizontal arm; flipY=false/true mirrors the vertical arm.
+        var textures = new Texture2D[]
         {
-            (new Vector2(0, 1), new Vector2(0, 1), Vector3.one),
-            (new Vector2(1, 1), new Vector2(1, 1), new Vector3(-1,  1, 1)),
-            (new Vector2(0, 0), new Vector2(0, 0), new Vector3( 1, -1, 1)),
-            (new Vector2(1, 0), new Vector2(1, 0), new Vector3(-1, -1, 1)),
+            GenCornerTex(false, false), // Corner0 — Top-Left
+            GenCornerTex(true,  false), // Corner1 — Top-Right
+            GenCornerTex(false, true),  // Corner2 — Bottom-Left
+            GenCornerTex(true,  true),  // Corner3 — Bottom-Right
+        };
+
+        var anchors = new Vector2[] {
+            new Vector2(0, 1),  // TL
+            new Vector2(1, 1),  // TR
+            new Vector2(0, 0),  // BL
+            new Vector2(1, 0),  // BR
+        };
+        var pivots = new Vector2[] {
+            new Vector2(0, 1),  // TL
+            new Vector2(1, 1),  // TR
+            new Vector2(0, 0),  // BL
+            new Vector2(1, 0),  // BR
         };
 
         for (int i = 0; i < 4; i++)
         {
+            var spr = Sprite.Create(textures[i],
+                          new Rect(0, 0, textures[i].width, textures[i].height),
+                          new Vector2(0.5f, 0.5f));
+
             var go = new GameObject($"Corner{i}",
                          typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             go.transform.SetParent(transform, false);
 
             var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = rt.anchorMax = cfg[i].anc;
-            rt.pivot              = cfg[i].piv;
-            rt.anchoredPosition   = Vector2.zero;
-            rt.sizeDelta          = new Vector2(24, 24);
-            rt.localScale         = cfg[i].sc;
+            rt.anchorMin      = rt.anchorMax = anchors[i];
+            rt.pivot          = pivots[i];
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta      = new Vector2(60, 60);
+            rt.localScale     = Vector3.one;
 
             var img = go.GetComponent<Image>();
-            img.sprite       = spr;
-            img.type         = Image.Type.Simple;
-            img.color        = CyanFull;
+            img.sprite        = spr;
+            img.type          = Image.Type.Simple;
+            img.color         = CyanFull;
             img.raycastTarget = false;
 
             var le = go.AddComponent<LayoutElement>();
@@ -321,44 +331,58 @@ public class CyberpunkPauseStyle : MonoBehaviour
         var tex = new Texture2D(S, S, TextureFormat.RGBA32, false)
         {
             filterMode = FilterMode.Bilinear,
-            wrapMode   = TextureWrapMode.Repeat
+            wrapMode = TextureWrapMode.Repeat
         };
         var clear = new Color32(0, 0, 0, 0);
-        var line  = new Color32(0, 229, 255, 15);   // rgba(0,229,255, ~0.06)
+        var line = new Color32(0, 229, 255, 15);   // rgba(0,229,255, ~0.06)
         var pixels = new Color32[S * S];
         for (int i = 0; i < pixels.Length; i++) pixels[i] = clear;
-        for (int x = 0; x < S; x++) pixels[0 * S + x]   = line; // bottom row (y=0)
-        for (int y = 0; y < S; y++) pixels[y * S + 0]   = line; // left column (x=0)
+        for (int x = 0; x < S; x++) pixels[0 * S + x] = line; // bottom row (y=0)
+        for (int y = 0; y < S; y++) pixels[y * S + 0] = line; // left column (x=0)
         tex.SetPixels32(pixels);
         tex.Apply(false, false); // keep readable so it can be used as a sprite/texture
         return tex;
     }
 
-    static Texture2D GenCornerTex()
+    // flipX → mirror horizontal arm to the right side (TR / BR)
+    // flipY → mirror vertical arm to the bottom (BL / BR)
+    static Texture2D GenCornerTex(bool flipX, bool flipY)
     {
-        const int S = 24;
+        const int S = 60;   // matches sizeDelta
+        const int T = 3;    // line thickness (px)
+        const int A = 22;   // arm length (px)
+
         var tex = new Texture2D(S, S, TextureFormat.RGBA32, false)
         {
             filterMode = FilterMode.Point,
             wrapMode   = TextureWrapMode.Clamp
         };
-        var clear = new Color32(0, 0, 0, 0);
-        var line  = new Color32(0, 229, 255, 255);
         var pixels = new Color32[S * S];
+        var clear  = new Color32(0, 0, 0, 0);
+        var line   = new Color32(0, 229, 255, 255);
         for (int i = 0; i < pixels.Length; i++) pixels[i] = clear;
 
-        // Horizontal arm: top 2 rows, 18 px wide  (y = S-1, S-2)
-        for (int x = 0; x < 18; x++)
-        {
-            pixels[(S - 1) * S + x] = line;
-            pixels[(S - 2) * S + x] = line;
-        }
-        // Vertical arm: left 2 columns, 18 px tall from bottom  (x = 0, 1)
-        for (int y = 0; y < 18; y++)
-        {
-            pixels[y * S + 0] = line;
-            pixels[y * S + 1] = line;
-        }
+        // In Unity Texture2D: y=0 = bottom, y=S-1 = top (matches UI display).
+        // Horizontal arm sits at the top (flipY=false) or bottom (flipY=true).
+        int hYStart = flipY ? 0     : S - T;
+        int hYEnd   = flipY ? T     : S;
+        int hXStart = flipX ? S - A : 0;
+        int hXEnd   = flipX ? S     : A;
+
+        // Vertical arm meets the horizontal arm — runs inward from the same corner.
+        int vXStart = flipX ? S - T : 0;
+        int vXEnd   = flipX ? S     : T;
+        int vYStart = flipY ? 0     : S - A;
+        int vYEnd   = flipY ? A     : S;
+
+        for (int x = hXStart; x < hXEnd; x++)
+            for (int y = hYStart; y < hYEnd; y++)
+                pixels[y * S + x] = line;
+
+        for (int x = vXStart; x < vXEnd; x++)
+            for (int y = vYStart; y < vYEnd; y++)
+                pixels[y * S + x] = line;
+
         tex.SetPixels32(pixels);
         tex.Apply(false, false);
         return tex;

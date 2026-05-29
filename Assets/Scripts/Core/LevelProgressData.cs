@@ -45,7 +45,7 @@ public static class LevelProgressData
     public static void ResetAll()
     {
         PlayerPrefs.DeleteKey(KEY_UNLOCKED);
-        for (int i = 1; i <= 15; i++)
+        for (int i = 1; i <= 50; i++)
             PlayerPrefs.DeleteKey(string.Format(KEY_STARS, i));
         PlayerPrefs.Save();
         Debug.Log("[LevelProgress] All progress reset.");

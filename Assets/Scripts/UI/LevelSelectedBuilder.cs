@@ -117,7 +117,7 @@ public class LevelSelectedBuilder : MonoBehaviour
 
         int maxUnlocked = PlayerPrefs.GetInt("MaxUnlockedLevel", 1);
 
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < FixedLevelManager.GetTotalLevels(); i++)
         {
             int levelNum    = i + 1;
             int starsEarned = PlayerPrefs.GetInt("Level_" + levelNum + "_Stars", -1);
@@ -162,7 +162,7 @@ public class LevelSelectedBuilder : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(content.GetComponent<RectTransform>());
 
-        Debug.Log("[LevelSelectedBuilder] Built 15 buttons. Unlocked up to: " + maxUnlocked);
+        Debug.Log("[LevelSelectedBuilder] Built " + FixedLevelManager.GetTotalLevels() + " buttons. Unlocked up to: " + maxUnlocked);
     }
 
     // ── Button factory ────────────────────────────────────────────
@@ -279,14 +279,15 @@ public class LevelSelectedBuilder : MonoBehaviour
     // ── Header ────────────────────────────────────────────────────
     private void UpdateHeader()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
+        int total         = FixedLevelManager.GetTotalLevels();
+        int unlockedLevel = FixedLevelManager.GetMaxUnlocked();
         int completed     = Mathf.Max(0, unlockedLevel - 1);
 
         var progressText = GameObject.Find("Progress_Text");
         if (progressText != null)
         {
             var pt = progressText.GetComponent<TextMeshProUGUI>();
-            if (pt != null) pt.text = completed + "/15 COMPLETED";
+            if (pt != null) pt.text = completed + "/" + total + " COMPLETED";
         }
 
         var titleText = GameObject.Find("Title_LEVELS");
@@ -300,7 +301,7 @@ public class LevelSelectedBuilder : MonoBehaviour
         if (barFill != null)
         {
             var img = barFill.GetComponent<Image>();
-            if (img != null) img.fillAmount = completed / 15f;
+            if (img != null) img.fillAmount = (float)completed / total;
         }
     }
 

@@ -6,10 +6,11 @@ public class PauseMenuUI : MonoBehaviour
 {
     public static PauseMenuUI Instance;
 
-    [SerializeField] CanvasGroup group;
-    [SerializeField] Button      resumeBtn;
-    [SerializeField] Button      settingsBtn;
-    [SerializeField] Button      menuBtn;
+    [SerializeField] CanvasGroup        group;
+    [SerializeField] Button             resumeBtn;
+    [SerializeField] Button             settingsBtn;
+    [SerializeField] Button             menuBtn;
+    [SerializeField] CardPopupAnimation cardPopup;
 
     void Awake() => Instance = this;
 
@@ -27,12 +28,7 @@ public class PauseMenuUI : MonoBehaviour
         group.interactable   = true;
         group.blocksRaycasts = true;
         Time.timeScale       = 0f;
-
-        // Card is always active (never SetActive toggled), so OnEnable won't re-fire.
-        // Explicitly trigger the popup animation each time the panel opens.
-        var card = transform.Find("Card");
-        if (card != null)
-            card.GetComponent<CardPopupAnimation>()?.PlayAnimation();
+        cardPopup?.PlayAnimation();
     }
 
     public void Hide()

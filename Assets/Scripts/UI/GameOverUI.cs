@@ -6,12 +6,13 @@ public class GameOverUI : MonoBehaviour
 {
     public static GameOverUI Instance { get; private set; }
 
-    [SerializeField] private TMP_Text    scoreText;
-    [SerializeField] private TMP_Text    bestText;
-    [SerializeField] private Button      retryBtn;
-    [SerializeField] private Button      menuBtn;
-    [SerializeField] private CanvasGroup group;
-    [SerializeField] private GameObject  panelRoot;
+    [SerializeField] private TMP_Text           scoreText;
+    [SerializeField] private TMP_Text           bestText;
+    [SerializeField] private Button             retryBtn;
+    [SerializeField] private Button             menuBtn;
+    [SerializeField] private CanvasGroup        group;
+    [SerializeField] private GameObject         panelRoot;
+    [SerializeField] private CardPopupAnimation cardPopup;
 
     private void Awake()
     {
@@ -59,6 +60,7 @@ public class GameOverUI : MonoBehaviour
         _isShowing = true;
 
         if (panelRoot != null) panelRoot.SetActive(true);
+        cardPopup?.PlayAnimation();
 
         if (scoreText != null) scoreText.text = score.ToString("N0");
 

@@ -9,7 +9,8 @@ public class LevelCompleteUI2D : MonoBehaviour
     public static LevelCompleteUI2D Instance;
 
     [Header("Panel")]
-    [SerializeField] GameObject  panelRoot;
+    [SerializeField] GameObject         panelRoot;
+    [SerializeField] CardPopupAnimation cardPopup;
 
     [Header("Canvas Group")]
     [SerializeField] CanvasGroup group;
@@ -59,6 +60,7 @@ public class LevelCompleteUI2D : MonoBehaviour
 
         // Activate panel first — alpha is already 1 from Awake
         if (panelRoot != null) panelRoot.SetActive(true);
+        cardPopup?.PlayAnimation();
 
         if (group != null)
         {

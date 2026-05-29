@@ -1095,6 +1095,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelCompleteUI2D
   panelRoot: {fileID: 277521126}
+  cardPopup: {fileID: 0}
   group: {fileID: 277521129}
   titleText: {fileID: 1195714792}
   subtitleText: {fileID: 560903539}
@@ -2888,6 +2889,8 @@ GameObject:
   - component: {fileID: 640541938}
   - component: {fileID: 640541940}
   - component: {fileID: 640541939}
+  - component: {fileID: 640541942}
+  - component: {fileID: 640541941}
   m_Layer: 0
   m_Name: Card
   m_TagString: Untagged
@@ -2953,6 +2956,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 640541937}
   m_CullTransparentMesh: 1
+--- !u!114 &640541941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640541937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c067676075aa34b89fe4dee48e653a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardPopupAnimation
+  duration: 0.45
+  overshootScale: 1.12
+  playOnEnable: 1
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.6
+      value: 1.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  borderImage: {fileID: 0}
+  normalColor: {r: 0, g: 0, b: 0, a: 0}
+  flashColor: {r: 0, g: 0, b: 0, a: 0}
+  flashDuration: 0.5
+--- !u!225 &640541942
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640541937}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &695951408
 GameObject:
   m_ObjectHideFlags: 0
@@ -3148,6 +3215,7 @@ MonoBehaviour:
   menuBtn: {fileID: 920068425}
   group: {fileID: 710979642}
   panelRoot: {fileID: 710979639}
+  cardPopup: {fileID: 0}
 --- !u!225 &710979642
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -11029,6 +11097,8 @@ GameObject:
   - component: {fileID: 1316734004}
   - component: {fileID: 1316734003}
   - component: {fileID: 1316734006}
+  - component: {fileID: 1316734008}
+  - component: {fileID: 1316734007}
   m_Layer: 0
   m_Name: Card
   m_TagString: Untagged
@@ -11136,6 +11206,70 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CyberpunkPauseStyle
   orbitronFont: {fileID: 0}
+--- !u!114 &1316734007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316734001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c067676075aa34b89fe4dee48e653a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardPopupAnimation
+  duration: 0.45
+  overshootScale: 1.12
+  playOnEnable: 1
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.6
+      value: 1.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  borderImage: {fileID: 0}
+  normalColor: {r: 0, g: 0, b: 0, a: 0}
+  flashColor: {r: 0, g: 0, b: 0, a: 0}
+  flashDuration: 0.5
+--- !u!225 &1316734008
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316734001}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1317464109
 GameObject:
   m_ObjectHideFlags: 0
@@ -11192,6 +11326,7 @@ MonoBehaviour:
   resumeBtn: {fileID: 1071858729}
   settingsBtn: {fileID: 1288317723}
   menuBtn: {fileID: 913089577}
+  cardPopup: {fileID: 0}
 --- !u!225 &1317464112
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -13017,6 +13152,8 @@ GameObject:
   - component: {fileID: 2047390502}
   - component: {fileID: 2047390501}
   - component: {fileID: 2047390500}
+  - component: {fileID: 2047390505}
+  - component: {fileID: 2047390504}
   m_Layer: 0
   m_Name: Card
   m_TagString: Untagged
@@ -13126,6 +13263,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2047390498}
   m_CullTransparentMesh: 1
+--- !u!114 &2047390504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2047390498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c067676075aa34b89fe4dee48e653a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardPopupAnimation
+  duration: 0.45
+  overshootScale: 1.12
+  playOnEnable: 1
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.6
+      value: 1.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  borderImage: {fileID: 0}
+  normalColor: {r: 0, g: 0, b: 0, a: 0}
+  flashColor: {r: 0, g: 0, b: 0, a: 0}
+  flashDuration: 0.5
+--- !u!225 &2047390505
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2047390498}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2064188330
 GameObject:
   m_ObjectHideFlags: 0

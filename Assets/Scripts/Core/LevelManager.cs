@@ -144,10 +144,10 @@ public class LevelManager : MonoBehaviour
             orbiterSpeeds = new float[0],
             orbiterRadii = new float[0]
         };
-        SpawnTargets(_currentConfig);
-        SpawnOrbiters(_currentConfig);
         TargetsRemaining = _currentConfig.targetCount;
         OnTargetsChanged?.Invoke(TargetsRemaining);
+        SpawnTargets(_currentConfig);
+        SpawnOrbiters(_currentConfig);
     }
 
     public void RespawnOrbiters()

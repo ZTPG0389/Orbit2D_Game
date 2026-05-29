@@ -11,7 +11,7 @@ public class LevelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     [HideInInspector] public Image      outerGlow;
     [HideInInspector] public Image      innerPanel;
     [HideInInspector] public TMP_Text   numberText;
-    [HideInInspector] public Image[]    starImages;
+    [HideInInspector] public Image[]    F;
     [HideInInspector] public Sprite     sprStarFilled;
     [HideInInspector] public Sprite     sprStarEmpty;
     [HideInInspector] public GameObject lockOverlay;
@@ -69,14 +69,14 @@ public class LevelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         }
 
         // Stars
-        if (starImages != null)
+        if (F != null)
         {
-            for (int i = 0; i < starImages.Length; i++)
+            for (int i = 0; i < F.Length; i++)
             {
-                if (starImages[i] == null) continue;
+                if (F[i] == null) continue;
                 bool earned = unlocked && i < stars;
-                starImages[i].sprite = earned ? sprStarFilled : sprStarEmpty;
-                starImages[i].color  = earned
+                F[i].sprite = earned ? sprStarFilled : sprStarEmpty;
+                F[i].color  = earned
                     ? Color.white
                     : new Color(0.20f, 0.20f, 0.30f, 0.60f);
             }

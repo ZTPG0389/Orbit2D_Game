@@ -16,7 +16,7 @@ public static class GameProgressManager
     // ── Scene names ──────────────────────────────────────────
     const string SceneGame2D      = "Game";
     const string SceneLevelSelect = "LevelSelected";
-    const int    TotalLevels      = 15;
+    const int    TotalLevels      = 50;
 
     // ── SelectedLevel ────────────────────────────────────────
     // Which level was tapped in Level Select.

@@ -115,24 +115,58 @@ public class LevelSelectedBuilder : MonoBehaviour
         csf.verticalFit   = ContentSizeFitter.FitMode.PreferredSize;
         csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
 
-        int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
+        int maxUnlocked = PlayerPrefs.GetInt("MaxUnlockedLevel", 1);
 
-        for (int i = 1; i <= 15; i++)
+        for (int i = 0; i < 15; i++)
         {
-            bool unlocked = i <= unlockedLevel;
-            int  stars    = PlayerPrefs.GetInt("OrbitDrop_Level_" + i + "_Stars", 0);
-            SpawnButton(content.transform, i, unlocked, stars);
+            int levelNum    = i + 1;
+            int starsEarned = PlayerPrefs.GetInt("Level_" + levelNum + "_Stars", -1);
+            var btn         = SpawnButton(content.transform, levelNum, levelNum <= maxUnlocked, starsEarned);
+
+            Transform starsParent = btn.transform.Find("Panel/Stars");
+            Transform lockOverlay = btn.transform.Find("Panel/LockOverlay");
+
+            if (levelNum > maxUnlocked)
+            {
+                // LOCKED: show lock, hide stars
+                if (lockOverlay != null) lockOverlay.gameObject.SetActive(true);
+                if (starsParent != null) starsParent.gameObject.SetActive(false);
+            }
+            else if (starsEarned <= 0)
+            {
+                // UNLOCKED but not played: hide lock, show empty stars
+                if (lockOverlay != null) lockOverlay.gameObject.SetActive(false);
+                if (starsParent != null)
+                {
+                    starsParent.gameObject.SetActive(true);
+                    ApplyStar(starsParent, "Star1", _sprStarEmpty);
+                    ApplyStar(starsParent, "Star2", _sprStarEmpty);
+                    ApplyStar(starsParent, "Star3", _sprStarEmpty);
+                }
+            }
+            else
+            {
+                // COMPLETED: hide lock, show filled stars based on count
+                if (lockOverlay != null) lockOverlay.gameObject.SetActive(false);
+                if (starsParent != null)
+                {
+                    starsParent.gameObject.SetActive(true);
+                    ApplyStar(starsParent, "Star1", starsEarned >= 1 ? _sprStarFilled : _sprStarEmpty);
+                    ApplyStar(starsParent, "Star2", starsEarned >= 2 ? _sprStarFilled : _sprStarEmpty);
+                    ApplyStar(starsParent, "Star3", starsEarned >= 3 ? _sprStarFilled : _sprStarEmpty);
+                }
+            }
         }
 
         // Force layout rebuild so ContentSizeFitter calculates correct height
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(content.GetComponent<RectTransform>());
 
-        Debug.Log("[LevelSelectedBuilder] Built 15 buttons. Unlocked up to: " + unlockedLevel);
+        Debug.Log("[LevelSelectedBuilder] Built 15 buttons. Unlocked up to: " + maxUnlocked);
     }
 
     // ── Button factory ────────────────────────────────────────────
-    private void SpawnButton(Transform parent, int i, bool unlocked, int stars)
+    private GameObject SpawnButton(Transform parent, int i, bool unlocked, int stars)
     {
         var btnGO = new GameObject("LvlBtn_" + i);
         btnGO.transform.SetParent(parent, false);
@@ -156,8 +190,14 @@ public class LevelSelectedBuilder : MonoBehaviour
         cb.colorMultiplier  = 1f;
         btn.colors = cb;
 
-        if (unlocked) BuildUnlockedContent(btnGO.transform, i, stars);
-        else          BuildLockedContent(btnGO.transform, i);
+        var panelGO = MakeRect(btnGO.transform, "Panel");
+        var panelRT = panelGO.GetComponent<RectTransform>();
+        panelRT.anchorMin = Vector2.zero;
+        panelRT.anchorMax = Vector2.one;
+        panelRT.offsetMin = panelRT.offsetMax = Vector2.zero;
+
+        if (unlocked) BuildUnlockedContent(panelGO.transform, i, stars);
+        else          BuildLockedContent(panelGO.transform, i);
 
         int  levelNum   = i;
         bool isUnlocked = unlocked;
@@ -168,6 +208,8 @@ public class LevelSelectedBuilder : MonoBehaviour
             PlayerPrefs.Save();
             SceneManager.LoadScene("Game");
         });
+
+        return btnGO;
     }
 
     // ── Unlocked: large number + cyan stars ───────────────────────
@@ -200,19 +242,17 @@ public class LevelSelectedBuilder : MonoBehaviour
         {
             var starGO  = MakeRect(starsGO.transform, "Star" + s);
             starGO.GetComponent<RectTransform>().sizeDelta = new Vector2(32, 32);
-            var starImg = starGO.AddComponent<Image>();
-            bool earned = s <= stars;
-            starImg.sprite = earned ? _sprStarFilled : _sprStarEmpty;
-            starImg.color  = earned
-                ? new Color(0.00f, 0.90f, 1.00f, 1.00f)
-                : new Color(0.20f, 0.20f, 0.30f, 0.60f);
+            starGO.AddComponent<Image>().color = Color.white;
         }
+
+        var lockOverlayGO = MakeRect(parent, "LockOverlay");
+        lockOverlayGO.SetActive(false);
     }
 
     // ── Locked: gold lock icon + small number ─────────────────────
     private void BuildLockedContent(Transform parent, int level)
     {
-        var lockGO  = MakeRect(parent, "LockIcon");
+        var lockGO  = MakeRect(parent, "LockOverlay");
         var lockRT  = lockGO.GetComponent<RectTransform>();
         lockRT.anchorMin = new Vector2(0.20f, 0.20f);
         lockRT.anchorMax = new Vector2(0.80f, 0.85f);
@@ -220,6 +260,9 @@ public class LevelSelectedBuilder : MonoBehaviour
         var lockImg = lockGO.AddComponent<Image>();
         lockImg.color = new Color(1f, 0.75f, 0.10f, 0.90f);
         if (_sprLock != null) lockImg.sprite = _sprLock;
+
+        var starsGO = MakeRect(parent, "Stars");
+        starsGO.SetActive(false);
 
         var snGO  = MakeRect(parent, "SmallNum");
         var snRT  = snGO.GetComponent<RectTransform>();
@@ -287,5 +330,15 @@ public class LevelSelectedBuilder : MonoBehaviour
         go.transform.SetParent(parent, false);
         go.AddComponent<RectTransform>();
         return go;
+    }
+
+    private void ApplyStar(Transform parent, string childName, Sprite sprite)
+    {
+        var t = parent.Find(childName);
+        if (t == null) return;
+        var img = t.GetComponent<Image>();
+        if (img == null) return;
+        img.sprite = sprite;
+        img.color  = Color.white;
     }
 }

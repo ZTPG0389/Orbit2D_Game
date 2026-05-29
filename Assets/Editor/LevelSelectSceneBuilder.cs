@@ -446,7 +446,7 @@ public static class LevelSelectSceneBuilder
             sImg.raycastTarget = false;
             starImgs[s] = sImg;
         }
-        lb.starImages    = starImgs;
+        lb.F             = starImgs;
         lb.sprStarFilled = filledSpr;
         lb.sprStarEmpty  = emptySpr;
 

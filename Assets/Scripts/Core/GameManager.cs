@@ -137,11 +137,23 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
         SetState(GameState.LevelComplete);
 
-        int stars = Mathf.Clamp(Lives, 1, 3);
+        int lives = Lives;
+        int stars = 1;
+        if (lives >= 2) stars = 2;
+        if (lives >= 3) stars = 3;
+
+        int currentLevel   = PlayerPrefs.GetInt("CurrentLevel", 1);
+        int existingStars  = PlayerPrefs.GetInt("Level_" + currentLevel + "_Stars", 0);
+        if (stars > existingStars)
+        {
+            PlayerPrefs.SetInt("Level_" + currentLevel + "_Stars", stars);
+            PlayerPrefs.Save();
+        }
+
         GameProgressManager.CompleteLevel(_currentLevel, stars);
         StarRatingUI.Instance?.ShowStars(Lives);
 
-        Debug.Log("[GameManager] OnLevelComplete — showing WinPanel for level " + _currentLevel);
+        Debug.Log("[GameManager] OnLevelComplete — Level=" + _currentLevel + " Lives=" + Lives + " Stars=" + stars);
         LevelCompleteUI2D.Instance?.Show(_currentLevel, 500);
     }
 

@@ -47,7 +47,7 @@ public class GameLevelSetup : MonoBehaviour
         // Manual levels 1-15 are configured via the scene / Inspector.
         // If LevelManager needs to know the index, call it here.
         if (LevelManager.Instance != null)
-            LevelManager.Instance.LoadLevel(level - 1); // LevelManager uses 0-based index
+            LevelManager.Instance.LoadLevel(level);
 
         Debug.Log($"[GameLevelSetup] Manual level {level}");
     }

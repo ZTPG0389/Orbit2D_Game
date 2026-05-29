@@ -71,14 +71,10 @@ public class LevelCompleteUI2D : MonoBehaviour
         int displayLevel = level > 0 ? level : PlayerPrefs.GetInt("SelectedLevel", 1);
 
         if (titleText != null)
-            titleText.text = displayLevel >= 15
-                ? "\U0001F3C6 You Win!"
-                : "Level " + displayLevel + " Complete!";
+            titleText.text = "You Win!";
 
         if (subtitleText != null)
-            subtitleText.text = displayLevel >= 15
-                ? "All 15 levels cleared!"
-                : "Level " + displayLevel + " cleared!";
+            subtitleText.text = "Level " + displayLevel + " cleared!";
 
         if (bonusText != null)
             bonusText.text = "+" + bonus + " Bonus!";

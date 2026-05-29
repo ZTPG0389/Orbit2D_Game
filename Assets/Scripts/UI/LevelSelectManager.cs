@@ -33,11 +33,13 @@ public class LevelSelectManager : MonoBehaviour
         foreach (Transform child in gridParent)
             Destroy(child.gameObject);
 
-        int total = FixedLevelManager.GetTotalLevels(); // always 50
+        int total      = FixedLevelManager.GetTotalLevels();
+        var sprFilled  = Resources.Load<Sprite>("Sprites/UI/star_filled");
+        var sprEmpty   = Resources.Load<Sprite>("Sprites/UI/star_empty");
 
         for (int i = 1; i <= total; i++)
         {
-            var btn      = Instantiate(levelButtonPrefab, gridParent);
+            var  btn      = Instantiate(levelButtonPrefab, gridParent);
             bool unlocked = FixedLevelManager.IsUnlocked(i);
 
             var numberTransform = btn.transform.Find("Panel/Number");
@@ -48,8 +50,35 @@ public class LevelSelectManager : MonoBehaviour
             }
 
             var lockOverlay = btn.transform.Find("Panel/LockOverlay");
-            if (lockOverlay != null)
-                lockOverlay.gameObject.SetActive(!unlocked);
+            if (lockOverlay != null) lockOverlay.gameObject.SetActive(!unlocked);
+
+            int       starsEarned = PlayerPrefs.GetInt("Level_" + i + "_Stars", -1);
+            Transform starsParent = btn.transform.Find("Panel/Stars");
+
+            if (!unlocked)
+            {
+                if (starsParent != null) starsParent.gameObject.SetActive(false);
+            }
+            else if (starsEarned <= 0)
+            {
+                if (starsParent != null)
+                {
+                    starsParent.gameObject.SetActive(true);
+                    ApplyStarSprite(starsParent, "Star1", sprEmpty);
+                    ApplyStarSprite(starsParent, "Star2", sprEmpty);
+                    ApplyStarSprite(starsParent, "Star3", sprEmpty);
+                }
+            }
+            else
+            {
+                if (starsParent != null)
+                {
+                    starsParent.gameObject.SetActive(true);
+                    ApplyStarSprite(starsParent, "Star1", starsEarned >= 1 ? sprFilled : sprEmpty);
+                    ApplyStarSprite(starsParent, "Star2", starsEarned >= 2 ? sprFilled : sprEmpty);
+                    ApplyStarSprite(starsParent, "Star3", starsEarned >= 3 ? sprFilled : sprEmpty);
+                }
+            }
 
             var button = btn.GetComponent<Button>();
             if (button != null)
@@ -79,9 +108,19 @@ public class LevelSelectManager : MonoBehaviour
         FixedLevelManager.CompleteLevel(currentLevel);
     }
 
+    private static void ApplyStarSprite(Transform parent, string childName, Sprite sprite)
+    {
+        var t = parent.Find(childName);
+        if (t == null) return;
+        var img = t.GetComponent<Image>();
+        if (img == null) return;
+        img.sprite = sprite;
+        img.color  = Color.white;
+    }
+
     public static void SaveLevelStars(int level, int stars)
     {
-        string key  = $"OrbitDrop_Level_{level}_Stars";
+        string key  = "Level_" + level + "_Stars";
         int    best = PlayerPrefs.GetInt(key, 0);
         if (stars > best)
         {

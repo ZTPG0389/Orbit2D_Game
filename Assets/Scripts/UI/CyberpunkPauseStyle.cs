@@ -38,6 +38,7 @@ public class CyberpunkPauseStyle : MonoBehaviour
     Coroutine _entranceCo;
     Coroutine _cornerPulseCo;
     readonly Coroutine[] _heartCos = new Coroutine[3];
+    CardPopupAnimation _cardPopup;
 
     bool _stylesApplied;
 
@@ -45,7 +46,8 @@ public class CyberpunkPauseStyle : MonoBehaviour
     void Awake()
     {
         _parentGroup = GetComponentInParent<CanvasGroup>();
-        _prevAlpha = _parentGroup ? _parentGroup.alpha : 0f;
+        _prevAlpha   = _parentGroup ? _parentGroup.alpha : 0f;
+        _cardPopup   = GetComponent<CardPopupAnimation>();
 
         _titleTMP = transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
         _resumeBtn = transform.Find("ResumeButton")?.GetComponent<Button>();
@@ -79,8 +81,12 @@ public class CyberpunkPauseStyle : MonoBehaviour
         float a = _parentGroup.alpha;
         if (_prevAlpha < 0.5f && a >= 0.5f)
         {
-            if (_entranceCo != null) StopCoroutine(_entranceCo);
-            _entranceCo = StartCoroutine(PanelEntrance());
+            // CardPopupAnimation owns localScale when present — skip PanelEntrance to avoid conflict.
+            if (_cardPopup == null)
+            {
+                if (_entranceCo != null) StopCoroutine(_entranceCo);
+                _entranceCo = StartCoroutine(PanelEntrance());
+            }
         }
         _prevAlpha = a;
     }

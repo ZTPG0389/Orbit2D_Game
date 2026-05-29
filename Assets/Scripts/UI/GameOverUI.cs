@@ -16,6 +16,7 @@ public class GameOverUI : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        if (panelRoot != null) panelRoot.SetActive(false);
         SetGroupVisible(false);
     }
 
@@ -89,6 +90,7 @@ public class GameOverUI : MonoBehaviour
         _isShowing = false;
         StopAllCoroutines();
         SetGroupVisible(false);
+        if (panelRoot != null) panelRoot.SetActive(false);
     }
 
     private void SetGroupVisible(bool visible)

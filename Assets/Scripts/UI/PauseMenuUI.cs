@@ -27,6 +27,12 @@ public class PauseMenuUI : MonoBehaviour
         group.interactable   = true;
         group.blocksRaycasts = true;
         Time.timeScale       = 0f;
+
+        // Card is always active (never SetActive toggled), so OnEnable won't re-fire.
+        // Explicitly trigger the popup animation each time the panel opens.
+        var card = transform.Find("Card");
+        if (card != null)
+            card.GetComponent<CardPopupAnimation>()?.PlayAnimation();
     }
 
     public void Hide()

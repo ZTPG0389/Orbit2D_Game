@@ -72,13 +72,14 @@ public class TargetRing2D : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (_hit || !other.CompareTag("Ball")) return;
+        if (_hit) return;
+        var ball = other.GetComponent<OrbiterBall2D>();
+        if (ball == null || !ball.IsReleased) return;
         _hit = true;
 
         StartCoroutine(HitEffect());
 
-        OrbiterBall2D ball = other.GetComponent<OrbiterBall2D>();
-        if (ball != null) ball.HasHit = true;
+        ball.HasHit = true;
 
         int points = ScoreManager.Instance?.RegisterHit() ?? 0;
         LevelManager.Instance?.OnTargetHit();

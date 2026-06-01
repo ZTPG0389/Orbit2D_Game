@@ -86,6 +86,7 @@ public class GameManager : MonoBehaviour
         OnLivesChanged?.Invoke(Lives);
         SetState(GameState.Playing);
         LevelManager.Instance?.LoadLevel(_currentLevel);
+        EnemySpawner.Instance?.StartSpawning(_currentLevel);
         Debug.Log("[GameManager] BeginGame — Level=" + _currentLevel + " Lives=" + Lives);
     }
 
@@ -107,6 +108,7 @@ public class GameManager : MonoBehaviour
         OnLivesChanged?.Invoke(Lives);
         SetState(GameState.Playing);
         LevelManager.Instance?.LoadLevel(_currentLevel);
+        EnemySpawner.Instance?.StartSpawning(_currentLevel);
         GameOverUI.Instance?.Hide();
     }
 
@@ -160,6 +162,9 @@ public class GameManager : MonoBehaviour
     private void SetState(GameState newState)
     {
         State = newState;
+        if (newState == GameState.GameOver || newState == GameState.LevelComplete)
+            if (EnemySpawner.Instance != null && EnemySpawner.Instance.gameObject != null)
+                EnemySpawner.Instance.StopSpawning();
         Debug.Log("[GameManager] State -> " + newState + "  Level=" + _currentLevel + "  Lives=" + Lives);
         OnStateChanged?.Invoke(State);
     }

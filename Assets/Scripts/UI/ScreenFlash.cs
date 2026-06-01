@@ -63,6 +63,35 @@ public class ScreenFlash : MonoBehaviour
         _flashRoutine = null;
     }
 
+    // Red hit flash for enemy damage — independent of the main flash color.
+    public void FlashRed(float duration = 0.15f)
+    {
+        if (flashImage == null) return;
+        if (_flashRoutine != null) StopCoroutine(_flashRoutine);
+        _flashRoutine = StartCoroutine(DoFlashColor(new Color(1f, 0f, 0f, 0.4f), duration));
+    }
+
+    private IEnumerator DoFlashColor(Color color, float totalDuration)
+    {
+        float half = totalDuration * 0.5f;
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / half;
+            flashImage.color = new Color(color.r, color.g, color.b, Mathf.Lerp(0f, color.a, Mathf.Clamp01(t)));
+            yield return null;
+        }
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / half;
+            flashImage.color = new Color(color.r, color.g, color.b, Mathf.Lerp(color.a, 0f, Mathf.Clamp01(t)));
+            yield return null;
+        }
+        flashImage.color = new Color(color.r, color.g, color.b, 0f);
+        _flashRoutine = null;
+    }
+
     private void SetAlpha(float a)
     {
         flashImage.color = new Color(flashColor.r, flashColor.g, flashColor.b, a);

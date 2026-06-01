@@ -48,6 +48,11 @@ public class OrbiterBall2D : MonoBehaviour
         GetComponent<CircleCollider2D>().enabled = true;
     }
 
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        Debug.Log($"[OrbiterBall] Hit: {other.gameObject.name}  tag={other.tag}  released={_released}");
+    }
+
     void Update()
     {
         if (!_released) return;

@@ -13,7 +13,7 @@ public class EnemyShip2D : MonoBehaviour
     void Awake()
     {
         if (explosionPrefab == null)
-            explosionPrefab = Resources.Load<GameObject>("Effects/CFXR2 WW Enemy Explosion");
+            explosionPrefab = Resources.Load<GameObject>("Effects/CFXR2 WW Explosion");
 
         var col = GetComponent<CircleCollider2D>();
         Debug.Log($"[Enemy] '{gameObject.name}' Awake | explosionPrefab={(explosionPrefab != null ? "LOADED" : "NULL")} " +
@@ -76,8 +76,7 @@ public class EnemyShip2D : MonoBehaviour
             return;
         }
 
-        var loaded = Resources.Load<GameObject>("Effects/CFXR2 WW Enemy Explosion")
-                  ?? Resources.Load<GameObject>("CFXR2 WW Enemy Explosion");
+        var loaded = Resources.Load<GameObject>("Effects/CFXR2 WW Explosion");
         if (loaded != null)
         {
             Destroy(Instantiate(loaded, pos, Quaternion.identity), 2f);

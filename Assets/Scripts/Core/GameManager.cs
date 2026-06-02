@@ -86,7 +86,13 @@ public class GameManager : MonoBehaviour
         OnLivesChanged?.Invoke(Lives);
         SetState(GameState.Playing);
         LevelManager.Instance?.LoadLevel(_currentLevel);
+
+        // --- DIAGNOSTIC: detect missing EnemySpawner instance ---
+        if (EnemySpawner.Instance == null)
+            Debug.LogError("[GameManager] BeginGame — EnemySpawner.Instance is NULL. " +
+                           "EnemySpawner GameObject may be inactive or missing from scene.");
         EnemySpawner.Instance?.StartSpawning(_currentLevel);
+
         Debug.Log("[GameManager] BeginGame — Level=" + _currentLevel + " Lives=" + Lives);
     }
 

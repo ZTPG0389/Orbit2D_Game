@@ -6,6 +6,19 @@ public class EnemyShip2D : MonoBehaviour
 {
     public float speed = 2f;
     private Vector3 _targetPos;
+    private bool _hit;
+
+    [SerializeField] GameObject explosionPrefab;
+
+    void Awake()
+    {
+        if (explosionPrefab == null)
+            explosionPrefab = Resources.Load<GameObject>("Effects/CFXR2 WW Enemy Explosion");
+
+        var col = GetComponent<CircleCollider2D>();
+        Debug.Log($"[Enemy] '{gameObject.name}' Awake | explosionPrefab={(explosionPrefab != null ? "LOADED" : "NULL")} " +
+                  $"col.isTrigger={col?.isTrigger} col.enabled={col?.enabled} col.radius={col?.radius}");
+    }
 
     public void Init(Vector3 startPos, Vector3 endPos, float spd)
     {
@@ -16,7 +29,8 @@ public class EnemyShip2D : MonoBehaviour
         var spr = Resources.Load<Sprite>("Sprites/UI/enemy_ship_red");
         if (spr != null) GetComponent<SpriteRenderer>().sprite = spr;
 
-        // Face direction of travel
+        transform.localScale = new Vector3(0.3f, 0.3f, 1f);
+
         Vector3 dir = (endPos - startPos).normalized;
         if (dir != Vector3.zero)
             transform.up = dir;
@@ -32,10 +46,45 @@ public class EnemyShip2D : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("OrbiterBall")) return;
-        GameManager.Instance?.LoseLife();
+        OrbiterBall2D ball = other.GetComponent<OrbiterBall2D>();
+
+        Debug.Log($"[Enemy] '{gameObject.name}' OnTriggerEnter2D | _hit={_hit} " +
+                  $"other='{other.gameObject.name}' ball_found={ball != null} " +
+                  $"IsReleased={ball?.IsReleased} HasHit={ball?.HasHit}");
+
+        if (_hit) return;
+        if (ball == null || !ball.IsReleased) return;
+
+        _hit = true;
+        ball.HasHit = true;
+
+        Debug.Log($"[Enemy] '{gameObject.name}' HIT CONFIRMED — destroying enemy");
+
+        SpawnExplosion();
+        AudioManager.Instance?.PlaySFX(AudioManager.SFX.Hit);
         EnemySpawner.Instance?.ShowRedFlash();
-        FloatingTextManager.Show("-1 LIFE", transform.position, Color.red);
         Destroy(gameObject);
+    }
+
+    void SpawnExplosion()
+    {
+        Vector3 pos = transform.position;
+
+        if (explosionPrefab != null)
+        {
+            Destroy(Instantiate(explosionPrefab, pos, Quaternion.identity), 2f);
+            return;
+        }
+
+        var loaded = Resources.Load<GameObject>("Effects/CFXR2 WW Enemy Explosion")
+                  ?? Resources.Load<GameObject>("CFXR2 WW Enemy Explosion");
+        if (loaded != null)
+        {
+            Destroy(Instantiate(loaded, pos, Quaternion.identity), 2f);
+            return;
+        }
+
+        Debug.LogWarning("[Enemy] explosionPrefab NULL and Resources.Load failed — falling back to ParticleManager.SpawnHitBurst.");
+        ParticleManager.Instance?.SpawnHitBurst(pos);
     }
 }

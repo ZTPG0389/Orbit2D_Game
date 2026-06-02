@@ -81,11 +81,29 @@ public class EnemySpawner : MonoBehaviour
         }
         float spd = Mathf.Clamp(1.5f + (_currentLevel - 10) * 0.1f, 1.5f, 4f);
 
-        var go  = new GameObject("EnemyShip");
-        var col = go.AddComponent<CircleCollider2D>();
+        var go = new GameObject("EnemyShip");
+
+        var sr  = go.AddComponent<SpriteRenderer>();
+        var spr = Resources.Load<Sprite>("Sprites/UI/enemy_ship_red");
+        if (spr != null) sr.sprite = spr;
+
+        go.transform.localScale = new Vector3(0.3f, 0.3f, 1f);
+
+        var col       = go.AddComponent<CircleCollider2D>();
         col.isTrigger = true;
         col.radius    = 0.4f;
-        go.AddComponent<SpriteRenderer>();
+
+        var trail = go.AddComponent<TrailRenderer>();
+        trail.startColor        = new Color(1f, 0.3f, 0f, 1f);
+        trail.endColor          = new Color(1f, 0f,   0f, 0f);
+        trail.time              = 0.5f;
+        trail.startWidth        = 0.15f;
+        trail.endWidth          = 0f;
+        trail.minVertexDistance = 0.05f;
+        trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        trail.receiveShadows    = false;
+        trail.material          = new Material(Shader.Find("Sprites/Default"));
+
         var enemy = go.AddComponent<EnemyShip2D>();
         enemy.Init(start, end, spd);
         _enemies.Add(go);

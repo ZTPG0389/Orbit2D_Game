@@ -19,6 +19,11 @@ public class TargetRing2D : MonoBehaviour
 
     void Start()
     {
+        var col = GetComponent<CircleCollider2D>();
+        Debug.Log($"[TargetRing2D] '{gameObject.name}' (path={GetPath()}) spawned | " +
+                  $"tag={gameObject.tag} layer={LayerMask.LayerToName(gameObject.layer)} " +
+                  $"col_enabled={col?.enabled} isTrigger={col?.isTrigger} radius={col?.radius}");
+
         if (visualRoot == null && transform.childCount > 0)
             visualRoot = transform.GetChild(0);
 
@@ -27,6 +32,14 @@ public class TargetRing2D : MonoBehaviour
 
         if (wingLeft == null || wingRight == null)
             FindWings();
+    }
+
+    string GetPath()
+    {
+        string path = gameObject.name;
+        Transform t = transform.parent;
+        while (t != null) { path = t.name + "/" + path; t = t.parent; }
+        return path;
     }
 
     void Update()
@@ -72,10 +85,13 @@ public class TargetRing2D : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log($"[TargetRing2D] OnTriggerEnter2D on '{GetPath()}' | _hit={_hit} other='{other.gameObject.name}'");
         if (_hit) return;
         var ball = other.GetComponent<OrbiterBall2D>();
+        Debug.Log($"[TargetRing2D] Ball check | ball_found={ball != null} IsReleased={ball?.IsReleased} HasHit={ball?.HasHit}");
         if (ball == null || !ball.IsReleased) return;
         _hit = true;
+        Debug.Log($"[TargetRing2D] HIT ACCEPTED on '{GetPath()}' — processing score/destroy");
 
         StartCoroutine(HitEffect());
 

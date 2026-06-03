@@ -43,11 +43,20 @@ public class EnemySpawner : MonoBehaviour
 
         _currentLevel = level;
         StopSpawning();
+
         if (level < 10)
         {
-            Debug.Log($"[EnemySpawner] level={level} < 10 — spawning suppressed.");
+            // Levels 1–9: spawn exactly one enemy immediately, no repeat loop.
+            Debug.Log($"[EnemySpawner] level={level} < 10 — spawning single enemy once.");
+            try   { SpawnEnemy(); }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[EnemySpawner] SpawnEnemy (single-shot) threw: {ex.GetType().Name}: {ex.Message}");
+            }
             return;
         }
+
+        // Level 10+: run the full timed spawn loop as before.
         _spawnLoop = StartCoroutine(SpawnLoop());
         Debug.Log($"[EnemySpawner] SpawnLoop coroutine started for level={level}.");
     }
@@ -57,20 +66,32 @@ public class EnemySpawner : MonoBehaviour
         if (this == null || !gameObject) return;
         StopAllCoroutines();
         _spawnLoop = null;
+
+        // FIX Bug 2: destroy all tracked enemy GameObjects so they do not survive
+        // into the next game session. Log confirmed: after RestartCurrentLevel() the
+        // new SpawnLoop started with "live enemies=1" — a ghost from the previous run
+        // that StopSpawning had left alive. Without this, the cap logic can block
+        // fresh spawns and stale enemies keep moving / can still deal damage.
+        foreach (var e in _enemies)
+            if (e != null) Destroy(e);
+        _enemies.Clear();
+        Debug.Log("[EnemySpawner] StopSpawning — all enemies destroyed and list cleared.");
     }
 
     IEnumerator SpawnLoop()
     {
         Debug.Log($"[EnemySpawner] SpawnLoop ENTERED — level={_currentLevel}");
+        int tick = 0;
         while (true)
         {
             float interval = _currentLevel >= 31 ? 5f
                            : _currentLevel >= 21 ? 6f : 8f;
-            Debug.Log($"[EnemySpawner] SpawnLoop waiting {interval}s — live enemies={_enemies.Count}");
+            tick++;
+            Debug.Log($"[EnemySpawner] SpawnLoop tick #{tick} — waiting {interval}s — live enemies={_enemies.Count}");
             yield return new WaitForSeconds(interval);
 
             _enemies.RemoveAll(e => e == null);
-            Debug.Log($"[EnemySpawner] SpawnLoop tick — enemies after cleanup={_enemies.Count}");
+            Debug.Log($"[EnemySpawner] SpawnLoop tick #{tick} resumed — enemies after cleanup={_enemies.Count}");
 
             if (_enemies.Count >= 3)
             {
@@ -81,7 +102,18 @@ public class EnemySpawner : MonoBehaviour
             int count = _currentLevel >= 31 ? 2 : 1;
             Debug.Log($"[EnemySpawner] Spawning {count} enemy/enemies.");
             for (int i = 0; i < count; i++)
-                SpawnEnemy();
+            {
+                try
+                {
+                    SpawnEnemy();
+                }
+                catch (System.Exception ex)
+                {
+                    // Without this catch the coroutine dies silently on Android IL2CPP.
+                    Debug.LogError($"[EnemySpawner] SpawnEnemy THREW — coroutine survived: " +
+                                   $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
+                }
+            }
         }
     }
 
@@ -130,6 +162,14 @@ public class EnemySpawner : MonoBehaviour
         var go = new GameObject("EnemyShip");
 
         var sr  = go.AddComponent<SpriteRenderer>();
+        // Explicit sort order — without this the enemy renders behind background sprites
+        // (order 0 default loses to any background with order >= 1).
+        sr.sortingLayerName = "Default";
+        sr.sortingOrder     = 10;
+        sr.color            = Color.white;
+        Debug.Log($"[EnemySpawner] SR created — material='{sr.material?.name}' " +
+                  $"shader='{sr.material?.shader?.name}' sortOrder={sr.sortingOrder}");
+
         var spr = Resources.Load<Sprite>("Sprites/UI/enemy_ship_red");
         Debug.Log($"[EnemySpawner] Resources.Load sprite 'Sprites/UI/enemy_ship_red' — {(spr != null ? "OK" : "NULL — ship will be invisible!")}");
         if (spr != null) sr.sprite = spr;
@@ -138,7 +178,7 @@ public class EnemySpawner : MonoBehaviour
 
         var col       = go.AddComponent<CircleCollider2D>();
         col.isTrigger = true;
-        col.radius    = 0.4f;
+        col.radius    = 0.6f;   // FIX: wider than 0.4 — matches EnemyShip2D.Awake() enforcement
 
         var trail = go.AddComponent<TrailRenderer>();
         trail.startColor        = new Color(1f, 0.3f, 0f, 1f);
@@ -168,7 +208,14 @@ public class EnemySpawner : MonoBehaviour
         enemy.Init(start, end, spd);
         _enemies.Add(go);
 
-        Debug.Log($"[EnemySpawner] Enemy created — name='{go.name}' pos={go.transform.position} active={go.activeInHierarchy} totalTracked={_enemies.Count}");
+        // Final-state dump — every field that can hide an enemy on Android.
+        var fsr = go.GetComponent<SpriteRenderer>();
+        Debug.Log($"[EnemySpawner] Enemy FINAL STATE — name='{go.name}' " +
+                  $"pos={go.transform.position} active={go.activeInHierarchy} " +
+                  $"srEnabled={fsr?.enabled} sprite={(fsr?.sprite != null ? fsr.sprite.name : "NULL")} " +
+                  $"material='{fsr?.material?.name}' shader='{fsr?.material?.shader?.name}' " +
+                  $"color={fsr?.color} sortLayer='{fsr?.sortingLayerName}' sortOrder={fsr?.sortingOrder} " +
+                  $"totalTracked={_enemies.Count}");
     }
 
     public void ShowRedFlash() => ScreenFlash.Instance?.FlashRed();

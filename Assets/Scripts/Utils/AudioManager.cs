@@ -5,7 +5,7 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
 
-    public enum SFX { Launch, Hit, Miss, LevelComplete }
+    public enum SFX { Launch, Hit, Miss, LevelComplete, Warning }
 
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioSource bgmSource;

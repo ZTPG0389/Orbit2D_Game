@@ -7,6 +7,7 @@ public class EnemyShip2D : MonoBehaviour
     public float speed = 2f;
     private Vector3 _targetPos;
     private bool _hit;
+    private bool _firstUpdateLogged;
 
     [SerializeField] GameObject explosionPrefab;
 
@@ -16,6 +17,14 @@ public class EnemyShip2D : MonoBehaviour
             explosionPrefab = Resources.Load<GameObject>("Effects/CFXR2 WW Explosion");
 
         var col = GetComponent<CircleCollider2D>();
+        // FIX: enforce collider settings here so they apply regardless of how the enemy
+        // was instantiated (runtime SpawnEnemy or direct prefab placement).
+        // Larger radius reduces tunneling; isTrigger is required for OnTriggerEnter2D.
+        if (col != null)
+        {
+            col.radius    = 0.6f;   // up from 0.4 — wider hit area catches fast OrbiterBall
+            col.isTrigger = true;
+        }
         Debug.Log($"[Enemy] '{gameObject.name}' Awake | explosionPrefab={(explosionPrefab != null ? "LOADED" : "NULL")} " +
                   $"col.isTrigger={col?.isTrigger} col.enabled={col?.enabled} col.radius={col?.radius}");
     }
@@ -38,6 +47,18 @@ public class EnemyShip2D : MonoBehaviour
 
     void Update()
     {
+        if (!_firstUpdateLogged)
+        {
+            _firstUpdateLogged = true;
+            var sr = GetComponent<SpriteRenderer>();
+            Debug.Log($"[Enemy] '{gameObject.name}' first Update — " +
+                      $"pos={transform.position} target={_targetPos} " +
+                      $"isVisible={sr?.isVisible} bounds={sr?.bounds} " +
+                      $"sprite={(sr?.sprite != null ? sr.sprite.name : "NULL")} " +
+                      $"material='{sr?.material?.name}' shader='{sr?.material?.shader?.name}' " +
+                      $"color={sr?.color} sortOrder={sr?.sortingOrder} srEnabled={sr?.enabled}");
+        }
+
         transform.position = Vector3.MoveTowards(
             transform.position, _targetPos, speed * Time.deltaTime);
         if (Vector3.Distance(transform.position, _targetPos) < 0.1f)
@@ -55,14 +76,38 @@ public class EnemyShip2D : MonoBehaviour
         if (_hit) return;
         if (ball == null || !ball.IsReleased) return;
 
+        // CHANGE 1: mark hit immediately so re-entrant callbacks are ignored.
         _hit = true;
+
+        // CHANGE 2: flag the ball so TargetRing2D and off-screen checks know it
+        // already registered a hit and should not trigger a second life-loss.
         ball.HasHit = true;
 
         Debug.Log($"[Enemy] '{gameObject.name}' HIT CONFIRMED — destroying enemy");
 
+        // CHANGE 3: Warning SFX only — NOT AudioManager.SFX.Hit.
+        // SFX.Hit is reserved for target-ring hits and awards score; enemy-ship
+        // collisions cost a life instead, so a distinct sound keeps feedback clear.
+        AudioManager.Instance?.PlaySFX(AudioManager.SFX.Warning);
+
+        // CHANGE 4: deduct one life — enemy ships are hazards, not targets.
+        // No score is awarded here; LoseLife() handles lives-remaining and
+        // triggers GameOver when lives reach zero.
+        GameManager.Instance?.LoseLife();
+
+        // FIX Bug 1: mark the ball as having hit an enemy BEFORE the enemy is
+        // destroyed. OrbiterBall2D.Update() checks HitEnemy in the offscreen guard
+        // so it will NOT call LoseLife() a second time when the ball continues
+        // offscreen after this collision. Must be set while ball reference is still valid.
+        ball.HitEnemy = true;
+
+        // CHANGE 5: spawn explosion VFX at the enemy's position before destroying it.
         SpawnExplosion();
-        AudioManager.Instance?.PlaySFX(AudioManager.SFX.Hit);
+
+        // Red screen-flash signals the player that damage was taken.
         EnemySpawner.Instance?.ShowRedFlash();
+
+        // CHANGE 6: destroy the enemy ship after all effects are queued.
         Destroy(gameObject);
     }
 

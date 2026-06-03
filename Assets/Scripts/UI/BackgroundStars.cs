@@ -23,7 +23,9 @@ public class BackgroundStars : MonoBehaviour
 
     private void Update()
     {
-        float t = Time.time * twinkleSpeed;
+        // Use unscaledTime so stars keep twinkling while the game is paused
+        // (Time.time stops at timeScale=0, causing all stars to freeze solid).
+        float t = Time.unscaledTime * twinkleSpeed;
         for (int i = 0; i < _imgs.Length; i++)
         {
             if (_imgs[i] == null) continue;

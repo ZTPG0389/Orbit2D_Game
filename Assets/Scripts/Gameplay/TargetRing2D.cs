@@ -90,6 +90,12 @@ public class TargetRing2D : MonoBehaviour
         var ball = other.GetComponent<OrbiterBall2D>();
         Debug.Log($"[TargetRing2D] Ball check | ball_found={ball != null} IsReleased={ball?.IsReleased} HasHit={ball?.HasHit}");
         if (ball == null || !ball.IsReleased) return;
+
+        // FIX Bug 1: if the ball already registered a hit on an EnemyShip (or another
+        // ring in the same physics step), HasHit=true. Do not award score a second time.
+        // Log confirmed: TargetRing was accepting hits with HasHit=True and awarding score
+        // in the same frame as the EnemyShip collision — penalising the player twice.
+        if (ball.HasHit) return;
         _hit = true;
         Debug.Log($"[TargetRing2D] HIT ACCEPTED on '{GetPath()}' — processing score/destroy");
 

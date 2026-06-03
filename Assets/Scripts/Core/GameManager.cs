@@ -33,7 +33,19 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("[GameManager] Awake in scene: " + SceneManager.GetActiveScene().name);
 
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            // Destroy only this component — NOT the whole gameObject.
+            // EnemySpawner and FloatingTextManager share this object in Game.unity;
+            // destroying the gameObject silently kills them before their Awake() runs,
+            // which prevents EnemySpawner.Instance from ever being set on Android
+            // (where Boot.unity creates the master GameManager before Game.unity loads).
+            Debug.LogWarning("[GameManager] Duplicate detected in '" +
+                             SceneManager.GetActiveScene().name +
+                             "' — destroying component only to preserve co-located managers.");
+            Destroy(this);
+            return;
+        }
         Instance = this;
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -102,8 +114,21 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame()
     {
+        if (State != GameState.Playing) return;   // prevent double-pause
         SetState(GameState.Paused);
-        PauseMenuUI.Instance?.Show();
+        PauseMenuUI.Instance?.Show();             // Show() sets Time.timeScale = 0
+    }
+
+    // Called by PauseMenuUI.ResumeAfterDelay() after Time.timeScale is restored.
+    // Without this, GameManager.State stays Paused and OrbitController2D /
+    // BallLauncher2D Update() guards keep returning early — balls stay frozen.
+    public void ResumeGame()
+    {
+        if (State != GameState.Paused) return;    // only valid from Paused
+        Debug.Log("[GameManager] ResumeGame — State Paused → Playing");
+        SetState(GameState.Playing);
+        // SpawnLoop coroutine was frozen by timeScale=0, not stopped —
+        // it resumes automatically; do NOT call StartSpawning() here.
     }
 
     public void RestartCurrentLevel()

@@ -46,13 +46,11 @@ public class EnemySpawner : MonoBehaviour
 
         if (level < 10)
         {
-            // Levels 1–9: spawn exactly one enemy immediately, no repeat loop.
-            Debug.Log($"[EnemySpawner] level={level} < 10 — spawning single enemy once.");
-            try   { SpawnEnemy(); }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"[EnemySpawner] SpawnEnemy (single-shot) threw: {ex.GetType().Name}: {ex.Message}");
-            }
+            // Levels 1–9: show warning then spawn exactly one enemy.
+            // StartCoroutine is non-blocking here — StartSpawning() returns
+            // immediately and the warning + spawn happen asynchronously.
+            Debug.Log($"[EnemySpawner] level={level} < 10 — single enemy with warning.");
+            StartCoroutine(SpawnEnemy());
             return;
         }
 
@@ -100,26 +98,21 @@ public class EnemySpawner : MonoBehaviour
             }
 
             int count = _currentLevel >= 31 ? 2 : 1;
-            Debug.Log($"[EnemySpawner] Spawning {count} enemy/enemies.");
+            Debug.Log($"[EnemySpawner] Spawning {count} enemy/enemies (with warning).");
+            // yield return ensures each enemy's warning plays sequentially —
+            // the next warning won't start until the previous ship has spawned.
             for (int i = 0; i < count; i++)
-            {
-                try
-                {
-                    SpawnEnemy();
-                }
-                catch (System.Exception ex)
-                {
-                    // Without this catch the coroutine dies silently on Android IL2CPP.
-                    Debug.LogError($"[EnemySpawner] SpawnEnemy THREW — coroutine survived: " +
-                                   $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
-                }
-            }
+                yield return StartCoroutine(SpawnEnemy());
         }
     }
 
-    void SpawnEnemy()
+    // Single coroutine: camera → edge → warning → spawn.
+    // SpawnLoop and StartSpawning (level < 10) both call:
+    //   yield return StartCoroutine(SpawnEnemy())
+    // The ship only enters the screen after ShowWarning() finishes.
+    IEnumerator SpawnEnemy()
     {
-        // --- FIX 1: Camera.main fallback ---
+        // ── Step 1: resolve camera ────────────────────────────────────────────
         Camera cam = Camera.main;
         if (cam == null)
         {
@@ -135,7 +128,7 @@ public class EnemySpawner : MonoBehaviour
             else
             {
                 Debug.LogError("[EnemySpawner] No camera found at all — cannot spawn enemy.");
-                return;
+                yield break;
             }
         }
 
@@ -143,6 +136,7 @@ public class EnemySpawner : MonoBehaviour
         float w = h * cam.aspect;
         Debug.Log($"[EnemySpawner] Camera OK — name='{cam.name}' orthoSize={h:F2} aspect={cam.aspect:F3} w={w:F2}");
 
+        // ── Step 2: pick entry edge and trajectory ────────────────────────────
         int edge = Random.Range(0, 4);
         Vector3 start, end;
         switch (edge)
@@ -159,6 +153,16 @@ public class EnemySpawner : MonoBehaviour
         float spd = Mathf.Clamp(1.5f + (_currentLevel - 10) * 0.1f, 1.5f, 4f);
         Debug.Log($"[EnemySpawner] Spawn — edge={edge} start={start} end={end} spd={spd:F2}");
 
+        // ── Step 3: show warning and WAIT for it to finish ────────────────────
+        // yield return means SpawnEnemy() is suspended until ShowWarning()'s
+        // IEnumerator completes its full 1.8 s flash sequence.
+        // The ship construction below runs only AFTER the last flash ends.
+        if (EnemyWarning.Instance != null)
+            yield return StartCoroutine(EnemyWarning.Instance.ShowWarning(edge));
+
+        // ── Step 4: build and launch the ship ─────────────────────────────────
+        try
+        {
         var go = new GameObject("EnemyShip");
 
         var sr  = go.AddComponent<SpriteRenderer>();
@@ -208,6 +212,13 @@ public class EnemySpawner : MonoBehaviour
         enemy.Init(start, end, spd);
         _enemies.Add(go);
 
+        // Warn the player that an enemy has entered the screen.
+        // Wrapped in UNITY_ANDROID because Handheld.Vibrate() is a no-op on iOS
+        // and logs a warning on Standalone — keep it Android-only to stay clean.
+#if UNITY_ANDROID
+        Handheld.Vibrate();
+#endif
+
         // Final-state dump — every field that can hide an enemy on Android.
         var fsr = go.GetComponent<SpriteRenderer>();
         Debug.Log($"[EnemySpawner] Enemy FINAL STATE — name='{go.name}' " +
@@ -216,6 +227,13 @@ public class EnemySpawner : MonoBehaviour
                   $"material='{fsr?.material?.name}' shader='{fsr?.material?.shader?.name}' " +
                   $"color={fsr?.color} sortLayer='{fsr?.sortingLayerName}' sortOrder={fsr?.sortingOrder} " +
                   $"totalTracked={_enemies.Count}");
+        }
+        catch (System.Exception ex)
+        {
+            // try/catch prevents a construction exception from killing SpawnLoop.
+            Debug.LogError($"[EnemySpawner] SpawnEnemy THREW — coroutine survived: " +
+                           $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 
     public void ShowRedFlash() => ScreenFlash.Instance?.FlashRed();

@@ -1,57 +1,58 @@
 using System.Collections;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 public class EnemyWarning : MonoBehaviour
 {
     public static EnemyWarning Instance;
 
-    [SerializeField] TextMeshProUGUI warningText;
+    // Assign a ⚠ warning sprite in the Inspector.
+    [SerializeField] Image warningImage;
 
     void Awake()
     {
         Instance = this;
-        if (warningText != null) warningText.gameObject.SetActive(false);
+        if (warningImage != null) warningImage.gameObject.SetActive(false);
     }
 
-    public void ShowWarning(int edge) => StartCoroutine(FlashWarning(edge));
-
-    IEnumerator FlashWarning(int edge)
+    // Returns IEnumerator so EnemySpawner can write:
+    //   yield return StartCoroutine(EnemyWarning.Instance.ShowWarning(edge))
+    // Execution resumes in SpawnEnemy() only AFTER the full flash sequence ends.
+    public IEnumerator ShowWarning(int edge)
     {
-        if (warningText == null) yield break;
+        if (warningImage == null) yield break;
 
-        string side = edge == 0 ? "TOP"
-                    : edge == 1 ? "BOTTOM"
-                    : edge == 2 ? "LEFT" : "RIGHT";
-        warningText.text  = "⚠ WARNING! " + side;
-        warningText.color = Color.red;
-
-        // Move warning text to the approaching edge
-        var rt = warningText.GetComponent<RectTransform>();
+        // Position always centred — a centred icon is more visible than an
+        // edge indicator on a small mobile screen.
+        var rt = warningImage.GetComponent<RectTransform>();
         if (rt != null)
         {
-            switch (edge)
-            {
-                case 0: rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
-                        rt.anchoredPosition = new Vector2(0f, -60f);  break;
-                case 1: rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f);
-                        rt.anchoredPosition = new Vector2(0f,  60f);  break;
-                case 2: rt.anchorMin = rt.anchorMax = new Vector2(0f, 0.5f);
-                        rt.anchoredPosition = new Vector2(80f,  0f);  break;
-                case 3: rt.anchorMin = rt.anchorMax = new Vector2(1f, 0.5f);
-                        rt.anchoredPosition = new Vector2(-80f, 0f);  break;
-            }
+            rt.anchorMin        = new Vector2(0.5f, 0.5f);
+            rt.anchorMax        = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
         }
 
-        warningText.gameObject.SetActive(true);
+        // Step 1 — show image
+        warningImage.gameObject.SetActive(true);
 
-        // Flash 3 times (6 half-steps × 0.3 s = 1.8 s total)
+        // Step 2 — play alert sound before first flash so audio leads visual
+        AudioManager.Instance?.PlaySFX(AudioManager.SFX.Alert);
+
+        // Step 3 — vibrate on warning (second buzz fires when ship actually spawns)
+#if UNITY_ANDROID
+        Handheld.Vibrate();
+#endif
+
+        // Step 4 — flash 3 times: alpha 1→0→1→0→1→0, every 0.3 s
+        // 6 half-steps × 0.3 s = 1.8 s total.
+        // EnemySpawner.SpawnEnemy() spawns the ship the moment this loop ends.
         for (int i = 0; i < 6; i++)
         {
-            warningText.alpha = i % 2 == 0 ? 1f : 0f;
+            warningImage.color = new Color(1f, 1f, 1f, i % 2 == 0 ? 1f : 0f);
             yield return new WaitForSeconds(0.3f);
         }
 
-        warningText.gameObject.SetActive(false);
+        // Step 5 — hide image; control returns to SpawnEnemy()
+        warningImage.gameObject.SetActive(false);
     }
 }

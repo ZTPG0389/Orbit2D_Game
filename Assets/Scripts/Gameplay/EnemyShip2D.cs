@@ -83,12 +83,17 @@ public class EnemyShip2D : MonoBehaviour
         // already registered a hit and should not trigger a second life-loss.
         ball.HasHit = true;
 
+        // Vibrate on impact — gives stronger tactile feedback than the spawn buzz
+        // because this event costs the player a life.
+#if UNITY_ANDROID
+        Handheld.Vibrate();
+#endif
+
         Debug.Log($"[Enemy] '{gameObject.name}' HIT CONFIRMED — destroying enemy");
 
-        // CHANGE 3: Warning SFX only — NOT AudioManager.SFX.Hit.
-        // SFX.Hit is reserved for target-ring hits and awards score; enemy-ship
-        // collisions cost a life instead, so a distinct sound keeps feedback clear.
-        AudioManager.Instance?.PlaySFX(AudioManager.SFX.Warning);
+        // Missile/explosion sound plays on enemy collision — distinct from both
+        // SFX.Hit (target-ring score sound) and SFX.Alert (pre-spawn warning).
+        AudioManager.Instance?.PlaySFX(AudioManager.SFX.MissileAttack);
 
         // CHANGE 4: deduct one life — enemy ships are hazards, not targets.
         // No score is awarded here; LoseLife() handles lives-remaining and

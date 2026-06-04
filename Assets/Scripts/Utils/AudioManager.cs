@@ -5,7 +5,10 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
 
-    public enum SFX { Launch, Hit, Miss, LevelComplete, Warning }
+    // sfxClips array in Inspector must match this order exactly:
+    // [0] Launch  [1] Hit  [2] Miss  [3] LevelComplete
+    // [4] MissileAttack  [5] Alert  [6] Warning
+    public enum SFX { Launch, Hit, Miss, LevelComplete, MissileAttack, Alert, Warning }
 
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioSource bgmSource;

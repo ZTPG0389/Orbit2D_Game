@@ -32,6 +32,9 @@ public class EnemyWarning : MonoBehaviour
             rt.anchoredPosition = Vector2.zero;
         }
 
+        // Force scale before showing so no animation or Inspector reset can shrink it.
+        warningImage.rectTransform.localScale = new Vector3(3f, 1.5f, 1f);
+
         // Step 1 — show image
         warningImage.gameObject.SetActive(true);
 

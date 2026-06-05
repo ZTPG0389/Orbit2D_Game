@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 17580285}
   - component: {fileID: 17580287}
   - component: {fileID: 17580288}
+  - component: {fileID: 17580290}
   m_Layer: 0
   m_Name: EnemyWarning
   m_TagString: Untagged
@@ -145,12 +146,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 17580283}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 1.5, z: 1}
+  m_LocalScale: {x: 3, y: 1.5000001, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1953636157}
+  m_Father: {fileID: 226409278}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -208,6 +209,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &17580290
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 17580283}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &44748136
 GameObject:
   m_ObjectHideFlags: 0
@@ -859,6 +872,7 @@ RectTransform:
   - {fileID: 124952962}
   - {fileID: 573589061}
   - {fileID: 401299307}
+  - {fileID: 17580284}
   m_Father: {fileID: 1953636157}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1366,6 +1380,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 295665379}
   m_CullTransparentMesh: 1
+--- !u!1 &300982914
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 300982916}
+  - component: {fileID: 300982915}
+  m_Layer: 0
+  m_Name: BoomEffectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &300982915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300982914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b6cbaa298c0bfd469efd5126b444caf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoomEffectPool
+  prefab: {fileID: 9081705760928401119, guid: b68ee07d7b3b8594297836f9b320fc97, type: 3}
+  initialSize: 4
+--- !u!4 &300982916
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300982914}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.01487, y: 0, z: -19.75538}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &353875368
 GameObject:
   m_ObjectHideFlags: 0
@@ -9624,7 +9684,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1071858730}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1321733518}
+        m_TargetAssemblyTypeName: SimplePause, Assembly-CSharp
+        m_MethodName: ResumeGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1071858730
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10968,7 +11040,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c0aa4d9b05c9f814e949de84c538b13e, type: 3}
   - {fileID: 8300000, guid: be08aa3a4aaca9d4abcb425b0eaefb8e, type: 3}
   - {fileID: 8300000, guid: 72aba24ca3c350041bfd83b12cafef68, type: 3}
-  - {fileID: 8300000, guid: 2ad3c590f5217794996a66fc43cec820, type: 3}
+  - {fileID: 8300000, guid: 6c9901d9a1b76d14e959178e9897cc87, type: 3}
   bgmClip: {fileID: 8300000, guid: ba842216131eb18409318f03e17feba3, type: 3}
 --- !u!4 &1301370826
 Transform:
@@ -11415,6 +11487,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1317464109}
   m_CullTransparentMesh: 1
+--- !u!1 &1321733517
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1321733519}
+  - component: {fileID: 1321733518}
+  m_Layer: 0
+  m_Name: PauseManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1321733518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1321733517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e85d63ce6a6f2d42977f6d6d5bd5e1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimplePause
+  pausePanel: {fileID: 1317464109}
+--- !u!4 &1321733519
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1321733517}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.07414, y: 0.47422, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1332024769
 GameObject:
   m_ObjectHideFlags: 0
@@ -12647,8 +12764,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 480627224}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+      - m_Target: {fileID: 1321733518}
+        m_TargetAssemblyTypeName: SimplePause, Assembly-CSharp
         m_MethodName: PauseGame
         m_Mode: 1
         m_Arguments:
@@ -12933,9 +13050,8 @@ RectTransform:
   - {fileID: 710979640}
   - {fileID: 277521127}
   - {fileID: 226409278}
-  - {fileID: 1317464110}
   - {fileID: 960753125}
-  - {fileID: 17580284}
+  - {fileID: 1317464110}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -13812,3 +13928,5 @@ SceneRoots:
   - {fileID: 393973341}
   - {fileID: 1072169940}
   - {fileID: 1295119306}
+  - {fileID: 1321733519}
+  - {fileID: 300982916}

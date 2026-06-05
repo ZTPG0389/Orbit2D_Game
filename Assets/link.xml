@@ -1,0 +1,5 @@
+<linker>
+  <assembly fullname="System.Windows.Forms" ignore="true"/>
+  <assembly fullname="System.Reactive.Windows.Forms" ignore="true"/>
+  <assembly fullname="System.Windows.Forms.DataVisualization" ignore="true"/>
+</linker>

@@ -120,6 +120,8 @@ public class EnemyShip2D : MonoBehaviour
     {
         Vector3 pos = transform.position;
 
+        BoomEffectPool.Instance?.ShowBoom(pos);
+
         if (explosionPrefab != null)
         {
             Destroy(Instantiate(explosionPrefab, pos, Quaternion.identity), 2f);

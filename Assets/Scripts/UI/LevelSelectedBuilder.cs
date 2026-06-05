@@ -13,7 +13,7 @@ public class LevelSelectedBuilder : MonoBehaviour
 
     void Start()
     {
-        if (FindObjectOfType<LevelSelectManager>() != null) return;
+        if (FindFirstObjectByType<LevelSelectManager>() != null) return;
 
         _sprBtn        = Resources.Load<Sprite>("Sprites/UI/level_button");
         _sprLock       = Resources.Load<Sprite>("Sprites/UI/lock_icon");

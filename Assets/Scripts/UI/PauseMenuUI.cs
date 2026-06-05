@@ -88,6 +88,8 @@ public class PauseMenuUI : MonoBehaviour
     // ── Resume sequence (STEPS 2 – 5) ────────────────────────────────────────────
     void OnResume()
     {
+        if (group == null || group.alpha < 0.9f) return;
+
         if (_isResuming)
         {
             Debug.LogWarning("[PauseMenuUI] OnResume — already resuming, duplicate ignored.");
@@ -131,7 +133,7 @@ public class PauseMenuUI : MonoBehaviour
 
         // Block BallLauncher2D launch input for 0.2 s so the touch that activated
         // the Resume button cannot reach ThrowYellowBall() once State = Playing.
-        BallLauncher2D launcher = FindObjectOfType<BallLauncher2D>();
+        BallLauncher2D launcher = FindFirstObjectByType<BallLauncher2D>();
         launcher?.BlockInputFor(0.3f);
 
         // ── STEP 4: drain the resume-touch from the Input system ─────────────────

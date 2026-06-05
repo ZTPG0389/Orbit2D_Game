@@ -157,7 +157,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: -0.02, y: -0.16}
-  m_Radius: 0.9
+  m_Radius: 1.5
 --- !u!96 &6244903256969968778
 TrailRenderer:
   serializedVersion: 4

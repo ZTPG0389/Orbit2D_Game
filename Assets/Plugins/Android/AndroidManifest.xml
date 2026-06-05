@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
+    package="com.zehntech.orbitdrop">
 
-    <!-- Required for Handheld.Vibrate() — without this the vibration call
-         is silently ignored on Android 6.0+ devices. -->
     <uses-permission android:name="android.permission.VIBRATE"/>
 
-    <application>
-        <activity android:name="com.unity3d.player.UnityPlayerGameActivity"
-                  android:exported="true">
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/app_icon"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+        
+        <activity
+            android:name="com.unity3d.player.UnityPlayerGameActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
+            android:hardwareAccelerated="false"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

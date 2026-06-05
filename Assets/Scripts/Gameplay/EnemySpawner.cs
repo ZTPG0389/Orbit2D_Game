@@ -116,7 +116,7 @@ public class EnemySpawner : MonoBehaviour
         Camera cam = Camera.main;
         if (cam == null)
         {
-            var allCams = FindObjectsOfType<Camera>();
+            var allCams = FindObjectsByType<Camera>(FindObjectsSortMode.None);
             Debug.LogWarning($"[EnemySpawner] Camera.main is NULL — found {allCams.Length} camera(s) total:");
             foreach (var c in allCams)
                 Debug.LogWarning($"  Camera: '{c.name}'  tag='{c.tag}'  active={c.gameObject.activeInHierarchy}  enabled={c.enabled}");

@@ -159,7 +159,7 @@ public class LevelManager : MonoBehaviour
         int count = TargetsRemaining;
         if (count <= 0) return;
 
-        BallLauncher2D launcher = FindObjectOfType<BallLauncher2D>();
+        BallLauncher2D launcher = FindFirstObjectByType<BallLauncher2D>();
         launcher?.ClearBalls();
 
         float angleStep = 360f / Mathf.Max(count, 1);
@@ -208,7 +208,7 @@ public class LevelManager : MonoBehaviour
     {
         if (orbiterPrefab == null) { Debug.LogError("[LevelManager] orbiterPrefab is NULL"); return; }
 
-        BallLauncher2D launcher = FindObjectOfType<BallLauncher2D>();
+        BallLauncher2D launcher = FindFirstObjectByType<BallLauncher2D>();
         launcher?.ResetForNewLevel();
 
         _savedRadii.Clear();

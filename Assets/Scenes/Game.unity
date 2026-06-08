@@ -1069,8 +1069,8 @@ Transform:
   m_GameObject: {fileID: 274277692}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -9768,7 +9768,7 @@ MonoBehaviour:
   bgRenderer: {fileID: 1072169939}
   planetSprites:
   - {fileID: 21300000, guid: 44246c918435cd943afe8a3ddd44f835, type: 3}
-  - {fileID: 21300000, guid: 3a3b1492dfb704b419d12a49d15c6680, type: 3}
+  - {fileID: 21300000, guid: d0f61ad48730bca46a3342a1bde50d35, type: 3}
   - {fileID: 21300000, guid: 8417cbf8949a4344bab9115643b61fb3, type: 3}
   - {fileID: 21300000, guid: 9bb1eeb65ae0bfe4d99e2729bca34c4b, type: 3}
   - {fileID: 21300000, guid: 75f28f2930a26404398d5158b1f2031c, type: 3}
@@ -10788,7 +10788,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25ac9d35089899d45866630b87fac3af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CFXRExplosionManager
-  explosionPrefab: {fileID: 3349188379795134518, guid: 08cfddfa5a18b2a4a9a2adce09aae232, type: 3}
+  explosionPrefab: {fileID: 141433446842962269, guid: 9fe8f8b3288e45a44af36ff8aa04486e, type: 3}
   sortingOrder: 100
   sortingLayer: Default
   effectScale: 1
@@ -13047,11 +13047,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 947982006}
-  - {fileID: 710979640}
   - {fileID: 277521127}
   - {fileID: 226409278}
   - {fileID: 960753125}
   - {fileID: 1317464110}
+  - {fileID: 710979640}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

@@ -7,7 +7,7 @@ public class EnemySpawner : MonoBehaviour
     public static EnemySpawner Instance;
 
     private readonly List<GameObject> _enemies = new List<GameObject>();
-    private int      _currentLevel;
+    private int _currentLevel;
     private Coroutine _spawnLoop;
 
     void Awake()
@@ -50,7 +50,7 @@ public class EnemySpawner : MonoBehaviour
             // StartCoroutine is non-blocking here — StartSpawning() returns
             // immediately and the warning + spawn happen asynchronously.
             Debug.Log($"[EnemySpawner] level={level} < 10 — single enemy with warning.");
-            StartCoroutine(SpawnEnemy());
+            StartCoroutine(SpawnEnemyWithDelay());
             return;
         }
 
@@ -106,6 +106,12 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    IEnumerator SpawnEnemyWithDelay()
+    {
+        yield return new WaitForSeconds(2f);
+        yield return StartCoroutine(SpawnEnemy());
+    }
+
     // Single coroutine: camera → edge → warning → spawn.
     // SpawnLoop and StartSpawning (level < 10) both call:
     //   yield return StartCoroutine(SpawnEnemy())
@@ -141,14 +147,18 @@ public class EnemySpawner : MonoBehaviour
         Vector3 start, end;
         switch (edge)
         {
-            case 0:  start = new Vector3(Random.Range(-w, w),  h + 1f, 0f);
-                     end   = new Vector3(Random.Range(-w, w), -h - 1f, 0f); break;
-            case 1:  start = new Vector3(Random.Range(-w, w), -h - 1f, 0f);
-                     end   = new Vector3(Random.Range(-w, w),  h + 1f, 0f); break;
-            case 2:  start = new Vector3(-w - 1f, Random.Range(-h, h), 0f);
-                     end   = new Vector3( w + 1f, Random.Range(-h, h), 0f); break;
-            default: start = new Vector3( w + 1f, Random.Range(-h, h), 0f);
-                     end   = new Vector3(-w - 1f, Random.Range(-h, h), 0f); break;
+            case 0:
+                start = new Vector3(Random.Range(-w, w), h + 1f, 0f);
+                end = new Vector3(Random.Range(-w, w), -h - 1f, 0f); break;
+            case 1:
+                start = new Vector3(Random.Range(-w, w), -h - 1f, 0f);
+                end = new Vector3(Random.Range(-w, w), h + 1f, 0f); break;
+            case 2:
+                start = new Vector3(-w - 1f, Random.Range(-h, h), 0f);
+                end = new Vector3(w + 1f, Random.Range(-h, h), 0f); break;
+            default:
+                start = new Vector3(w + 1f, Random.Range(-h, h), 0f);
+                end = new Vector3(-w - 1f, Random.Range(-h, h), 0f); break;
         }
         float spd = Mathf.Clamp(1.5f + (_currentLevel - 10) * 0.1f, 1.5f, 4f);
         Debug.Log($"[EnemySpawner] Spawn — edge={edge} start={start} end={end} spd={spd:F2}");
@@ -163,70 +173,70 @@ public class EnemySpawner : MonoBehaviour
         // ── Step 4: build and launch the ship ─────────────────────────────────
         try
         {
-        var go = new GameObject("EnemyShip");
+            var go = new GameObject("EnemyShip");
 
-        var sr  = go.AddComponent<SpriteRenderer>();
-        // Explicit sort order — without this the enemy renders behind background sprites
-        // (order 0 default loses to any background with order >= 1).
-        sr.sortingLayerName = "Default";
-        sr.sortingOrder     = 10;
-        sr.color            = Color.white;
-        Debug.Log($"[EnemySpawner] SR created — material='{sr.material?.name}' " +
-                  $"shader='{sr.material?.shader?.name}' sortOrder={sr.sortingOrder}");
+            var sr = go.AddComponent<SpriteRenderer>();
+            // Explicit sort order — without this the enemy renders behind background sprites
+            // (order 0 default loses to any background with order >= 1).
+            sr.sortingLayerName = "Default";
+            sr.sortingOrder = 10;
+            sr.color = Color.white;
+            Debug.Log($"[EnemySpawner] SR created — material='{sr.material?.name}' " +
+                      $"shader='{sr.material?.shader?.name}' sortOrder={sr.sortingOrder}");
 
-        var spr = Resources.Load<Sprite>("Sprites/UI/enemy_ship_red");
-        Debug.Log($"[EnemySpawner] Resources.Load sprite 'Sprites/UI/enemy_ship_red' — {(spr != null ? "OK" : "NULL — ship will be invisible!")}");
-        if (spr != null) sr.sprite = spr;
+            var spr = Resources.Load<Sprite>("Sprites/UI/enemy_ship_red");
+            Debug.Log($"[EnemySpawner] Resources.Load sprite 'Sprites/UI/enemy_ship_red' — {(spr != null ? "OK" : "NULL — ship will be invisible!")}");
+            if (spr != null) sr.sprite = spr;
 
-        go.transform.localScale = new Vector3(0.3f, 0.3f, 1f);
+            go.transform.localScale = new Vector3(0.3f, 0.3f, 1f);
 
-        var col       = go.AddComponent<CircleCollider2D>();
-        col.isTrigger = true;
-        col.radius    = 0.6f;   // FIX: wider than 0.4 — matches EnemyShip2D.Awake() enforcement
+            var col = go.AddComponent<CircleCollider2D>();
+            col.isTrigger = true;
+            col.radius = 0.6f;   // FIX: wider than 0.4 — matches EnemyShip2D.Awake() enforcement
 
-        var trail = go.AddComponent<TrailRenderer>();
-        trail.startColor        = new Color(1f, 0.3f, 0f, 1f);
-        trail.endColor          = new Color(1f, 0f,   0f, 0f);
-        trail.time              = 0.5f;
-        trail.startWidth        = 0.15f;
-        trail.endWidth          = 0f;
-        trail.minVertexDistance = 0.05f;
-        trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        trail.receiveShadows    = false;
+            var trail = go.AddComponent<TrailRenderer>();
+            trail.startColor = new Color(1f, 0.3f, 0f, 1f);
+            trail.endColor = new Color(1f, 0f, 0f, 0f);
+            trail.time = 0.5f;
+            trail.startWidth = 0.15f;
+            trail.endWidth = 0f;
+            trail.minVertexDistance = 0.05f;
+            trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            trail.receiveShadows = false;
 
-        // --- FIX 2: Shader.Find("Sprites/Default") returns null in URP Android builds ---
-        // Use a Resources-loaded material or fall back to a guaranteed URP shader.
-        Material trailMat = Resources.Load<Material>("TrailDefaultMat");
-        if (trailMat == null)
-        {
-            Shader trailShader = Shader.Find("Universal Render Pipeline/Particles/Unlit")
-                              ?? Shader.Find("Sprites/Default");
-            Debug.Log($"[EnemySpawner] Trail shader — '{(trailShader != null ? trailShader.name : "NULL — trail will be broken")}' ");
-            if (trailShader != null)
-                trailMat = new Material(trailShader);
-        }
-        if (trailMat != null)
-            trail.material = trailMat;
+            // --- FIX 2: Shader.Find("Sprites/Default") returns null in URP Android builds ---
+            // Use a Resources-loaded material or fall back to a guaranteed URP shader.
+            Material trailMat = Resources.Load<Material>("TrailDefaultMat");
+            if (trailMat == null)
+            {
+                Shader trailShader = Shader.Find("Universal Render Pipeline/Particles/Unlit")
+                                  ?? Shader.Find("Sprites/Default");
+                Debug.Log($"[EnemySpawner] Trail shader — '{(trailShader != null ? trailShader.name : "NULL — trail will be broken")}' ");
+                if (trailShader != null)
+                    trailMat = new Material(trailShader);
+            }
+            if (trailMat != null)
+                trail.material = trailMat;
 
-        var enemy = go.AddComponent<EnemyShip2D>();
-        enemy.Init(start, end, spd);
-        _enemies.Add(go);
+            var enemy = go.AddComponent<EnemyShip2D>();
+            enemy.Init(start, end, spd);
+            _enemies.Add(go);
 
-        // Warn the player that an enemy has entered the screen.
-        // Wrapped in UNITY_ANDROID because Handheld.Vibrate() is a no-op on iOS
-        // and logs a warning on Standalone — keep it Android-only to stay clean.
+            // Warn the player that an enemy has entered the screen.
+            // Wrapped in UNITY_ANDROID because Handheld.Vibrate() is a no-op on iOS
+            // and logs a warning on Standalone — keep it Android-only to stay clean.
 #if UNITY_ANDROID
         Handheld.Vibrate();
 #endif
 
-        // Final-state dump — every field that can hide an enemy on Android.
-        var fsr = go.GetComponent<SpriteRenderer>();
-        Debug.Log($"[EnemySpawner] Enemy FINAL STATE — name='{go.name}' " +
-                  $"pos={go.transform.position} active={go.activeInHierarchy} " +
-                  $"srEnabled={fsr?.enabled} sprite={(fsr?.sprite != null ? fsr.sprite.name : "NULL")} " +
-                  $"material='{fsr?.material?.name}' shader='{fsr?.material?.shader?.name}' " +
-                  $"color={fsr?.color} sortLayer='{fsr?.sortingLayerName}' sortOrder={fsr?.sortingOrder} " +
-                  $"totalTracked={_enemies.Count}");
+            // Final-state dump — every field that can hide an enemy on Android.
+            var fsr = go.GetComponent<SpriteRenderer>();
+            Debug.Log($"[EnemySpawner] Enemy FINAL STATE — name='{go.name}' " +
+                      $"pos={go.transform.position} active={go.activeInHierarchy} " +
+                      $"srEnabled={fsr?.enabled} sprite={(fsr?.sprite != null ? fsr.sprite.name : "NULL")} " +
+                      $"material='{fsr?.material?.name}' shader='{fsr?.material?.shader?.name}' " +
+                      $"color={fsr?.color} sortLayer='{fsr?.sortingLayerName}' sortOrder={fsr?.sortingOrder} " +
+                      $"totalTracked={_enemies.Count}");
         }
         catch (System.Exception ex)
         {

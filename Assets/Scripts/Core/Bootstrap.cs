@@ -1,9 +1,11 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Video;
 
 public class Bootstrap : MonoBehaviour
 {
+    [SerializeField] VideoPlayer videoPlayer;
     private static bool _initialized;
 
     private void Awake()
@@ -17,22 +19,33 @@ public class Bootstrap : MonoBehaviour
 
     private void Start()
     {
+        if (videoPlayer == null)
+            videoPlayer = FindFirstObjectByType<VideoPlayer>();
         StartCoroutine(LoadMainMenuAsync());
     }
 
     private IEnumerator LoadMainMenuAsync()
     {
-        // Pre-load MainMenu in background while splash is visible
         AsyncOperation op = SceneManager.LoadSceneAsync(1);
-        if (op == null)
-        {
-            Debug.LogError("[Bootstrap] LoadSceneAsync(1/MainMenu) returned null — scene missing from build?");
-            yield break;
-        }
+        if (op == null) { yield break; }
         op.allowSceneActivation = false;
 
-        // Show splash for 2 seconds
-        yield return new WaitForSeconds(2f);
+        if (videoPlayer != null)
+        {
+            bool videoEnded = false;
+            videoPlayer.loopPointReached += (_) => videoEnded = true;
+
+            // Buffer video fully before playing — eliminates black screen on Android
+            videoPlayer.Prepare();
+            yield return new WaitUntil(() => videoPlayer.isPrepared);
+
+            videoPlayer.Play();
+            yield return new WaitUntil(() => videoEnded);
+        }
+        else
+        {
+            yield return new WaitForSeconds(5f);
+        }
 
         op.allowSceneActivation = true;
         while (!op.isDone) yield return null;

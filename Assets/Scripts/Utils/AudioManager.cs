@@ -15,8 +15,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip[] sfxClips;  // indices must match SFX enum order
     [SerializeField] private AudioClip   bgmClip;
 
-    private const string SfxVolKey = "OrbitDrop_SFXVol";
-    private const string BgmVolKey = "OrbitDrop_BGMVol";
+    private const string SfxVolKey = "OrbitDestroyer_SFXVol";
+    private const string BgmVolKey = "OrbitDestroyer_BGMVol";
 
     public float SfxVolume { get; private set; }
     public float BgmVolume { get; private set; }

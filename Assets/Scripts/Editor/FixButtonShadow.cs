@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public static class FixButtonShadow
 {
-    [MenuItem("OrbitDrop3D/Remove Button Shadow")]
+    [MenuItem("OrbitDestroyer/Remove Button Shadow")]
     static void Fix()
     {
         using (var scope = new PrefabUtility.EditPrefabContentsScope("Assets/Prefabs/LvlBtn_01.prefab"))

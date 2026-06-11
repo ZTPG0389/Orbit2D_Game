@@ -3,7 +3,7 @@ using UnityEditor;
 
 public static class FixNumberColor
 {
-    [MenuItem("OrbitDrop3D/Fix Number Text Color")]
+    [MenuItem("OrbitDestroyer/Fix Number Text Color")]
     static void Fix()
     {
         using (var scope = new PrefabUtility.EditPrefabContentsScope("Assets/Prefabs/LvlBtn_01.prefab"))

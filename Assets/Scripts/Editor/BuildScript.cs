@@ -7,7 +7,7 @@ public static class BuildScript
     public static void BuildAndroid()
     {
         string outputDir  = "Builds/Android";
-        string outputPath = Path.Combine(outputDir, "OrbitDrop3D.apk");
+        string outputPath = Path.Combine(outputDir, "OrbitDestroyer.apk");
 
         Directory.CreateDirectory(outputDir);
 

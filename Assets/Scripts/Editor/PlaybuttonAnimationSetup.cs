@@ -4,7 +4,7 @@ using UnityEditor.Animations;
 using UnityEngine.UI;
 using UnityEditor.SceneManagement;
 
-/// One-shot setup: OrbitDrop3D → Setup Playbutton Premium Animation
+/// One-shot setup: OrbitDestroyer → Setup Playbutton Premium Animation
 /// Creates ButtonGlow child, AnimationClip (idle + glow pulse), AnimatorController,
 /// attaches Animator + PlaybuttonAnimator to Playbutton, saves scene.
 public static class PlaybuttonAnimationSetup
@@ -13,7 +13,7 @@ public static class PlaybuttonAnimationSetup
     const string CLIP_PATH       = ANIM_FOLDER + "/PlaybuttonIdle.anim";
     const string CONTROLLER_PATH = ANIM_FOLDER + "/PlaybuttonPulse.controller";
 
-    [MenuItem("OrbitDrop3D/Setup Playbutton Premium Animation")]
+    [MenuItem("OrbitDestroyer/Setup Playbutton Premium Animation")]
     static void Setup()
     {
         // ── 1. Find Playbutton ────────────────────────────────────────────────

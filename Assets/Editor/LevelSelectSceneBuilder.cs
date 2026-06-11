@@ -10,14 +10,14 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// Run once: Tools ▶ OrbitDrop ▶ Build Level Select Scene
+/// Run once: Tools ▶ OrbitDestroyer ▶ Build Level Select Scene
 /// Clears LevelSelected.unity and rebuilds the full Level Select UI hierarchy.
 /// </summary>
 public static class LevelSelectSceneBuilder
 {
     const string ScenePath = "Assets/Scenes/LevelSelected.unity";
 
-    [MenuItem("Tools/OrbitDrop/Build Level Select Scene")]
+    [MenuItem("Tools/OrbitDestroyer/Build Level Select Scene")]
     public static void Build()
     {
         if (!EditorUtility.DisplayDialog("Build Level Select Scene",
@@ -224,7 +224,7 @@ public static class LevelSelectSceneBuilder
     // ═══════════════════════════════════════════════════════════
     // MENU: Create stub Level1–Level15 scenes
     // ═══════════════════════════════════════════════════════════
-    [MenuItem("Tools/OrbitDrop/Create Stub Level Scenes (1–15)")]
+    [MenuItem("Tools/OrbitDestroyer/Create Stub Level Scenes (1–15)")]
     public static void CreateStubScenes()
     {
         if (!EditorUtility.DisplayDialog("Create Stub Scenes",
@@ -257,7 +257,7 @@ public static class LevelSelectSceneBuilder
     // ═══════════════════════════════════════════════════════════
     // MENU: Add Level1–Level15 to Build Settings
     // ═══════════════════════════════════════════════════════════
-    [MenuItem("Tools/OrbitDrop/Add Level Scenes to Build Settings")]
+    [MenuItem("Tools/OrbitDestroyer/Add Level Scenes to Build Settings")]
     public static void AddLevelsToBuildSettings()
     {
         var scenes  = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
@@ -305,7 +305,7 @@ public static class LevelSelectSceneBuilder
     //       in Edit Mode — identical to Play Mode structure.
     //       Run once after "Build Level Select Scene".
     // ═══════════════════════════════════════════════════════════
-    [MenuItem("Tools/OrbitDrop/Populate Level Buttons (Preview)")]
+    [MenuItem("Tools/OrbitDestroyer/Populate Level Buttons (Preview)")]
     public static void PopulateLevelButtons()
     {
         const string SpritesPath = "Assets/Resources/Sprites/UI/";

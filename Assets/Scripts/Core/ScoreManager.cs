@@ -14,7 +14,7 @@ public class ScoreManager : MonoBehaviour
     public event Action<int> OnScoreChanged;
     public event Action<int> OnComboChanged;
 
-    private const string BestScoreKey  = "OrbitDrop_BestScore";
+    private const string BestScoreKey  = "OrbitDestroyer_BestScore";
     private const int    HitBasePoints = 100;
     private const int    LevelBonus    = 500;
 

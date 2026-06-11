@@ -6,7 +6,7 @@ using UnityEngine;
 
 public static class AndroidBuilder
 {
-    const string OutputPath = "Builds/Android/OrbitDrop3D.apk";
+    const string OutputPath = "Builds/Android/OrbitDestroyer.apk";
 
     // ── Dev build: Mono backend — fast, low disk use ──────────
     // Use this during development. Skips IL2CPP compilation entirely.

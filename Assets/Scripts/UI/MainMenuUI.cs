@@ -21,7 +21,7 @@ public class MainMenuUI : MonoBehaviour
         if (bestScoreText == null) return;
         int best = ScoreManager.Instance != null
             ? ScoreManager.Instance.BestScore
-            : PlayerPrefs.GetInt("OrbitDrop_BestScore", 0);
+            : PlayerPrefs.GetInt("OrbitDestroyer_BestScore", 0);
         bool hasBest = best > 0;
         bestScoreText.gameObject.SetActive(hasBest);
         if (hasBest) bestScoreText.text = $"BEST  {best:N0}";

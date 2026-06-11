@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 
 public static class VideoSetupEditor
 {
-    [MenuItem("OrbitDrop3D/Setup Video Background")]
+    [MenuItem("OrbitDestroyer/Setup Video Background")]
     static void SetupVideoBackground()
     {
         // ── 1. Create RenderTexture asset ─────────────────────────────────────

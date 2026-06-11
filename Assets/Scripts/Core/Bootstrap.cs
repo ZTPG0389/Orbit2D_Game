@@ -6,6 +6,8 @@ using UnityEngine.Video;
 public class Bootstrap : MonoBehaviour
 {
     [SerializeField] VideoPlayer videoPlayer;
+    [SerializeField] GameObject  splashScreen;
+
     private static bool _initialized;
 
     private void Awake()
@@ -21,6 +23,11 @@ public class Bootstrap : MonoBehaviour
     {
         if (videoPlayer == null)
             videoPlayer = FindFirstObjectByType<VideoPlayer>();
+
+        // Show splash immediately so screen is never black during preparation
+        if (splashScreen != null)
+            splashScreen.SetActive(true);
+
         StartCoroutine(LoadMainMenuAsync());
     }
 
@@ -35,9 +42,13 @@ public class Bootstrap : MonoBehaviour
             bool videoEnded = false;
             videoPlayer.loopPointReached += (_) => videoEnded = true;
 
-            // Buffer video fully before playing — eliminates black screen on Android
+            // Prepare in background — splashScreen covers the black screen during this
             videoPlayer.Prepare();
             yield return new WaitUntil(() => videoPlayer.isPrepared);
+
+            // Video is ready — hide splash and play
+            if (splashScreen != null)
+                splashScreen.SetActive(false);
 
             videoPlayer.Play();
             yield return new WaitUntil(() => videoEnded);
@@ -49,5 +60,14 @@ public class Bootstrap : MonoBehaviour
 
         op.allowSceneActivation = true;
         while (!op.isDone) yield return null;
+    }
+
+    // When app returns to foreground from a mid-game background, send the
+    // player back to MainMenu rather than resuming an unknown game state.
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (!hasFocus) return;
+        if (SceneManager.GetActiveScene().buildIndex > 1)
+            SceneManager.LoadScene(1);
     }
 }

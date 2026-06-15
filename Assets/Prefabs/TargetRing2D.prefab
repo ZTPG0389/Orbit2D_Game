@@ -275,5 +275,5 @@ MonoBehaviour:
   wingFlapSpeed: 1.2
   wingFlapAmount: 12
   visualRoot: {fileID: 0}
-  pulseSpeed: 1.5
+  pulseSpeed: 1.2
   pulseAmount: 0.04

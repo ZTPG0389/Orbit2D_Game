@@ -16,6 +16,14 @@ public class TargetRing2D : MonoBehaviour
 
     private Vector3 _visualStartScale;
     private bool _hit;
+    private Vector2 _velocity;
+
+    void Awake()
+    {
+        int level = PlayerPrefs.GetInt("CurrentLevel", 1);
+        float speed = Mathf.Clamp(1f + level * 0.1f, 1f, 4f);
+        _velocity = new Vector2(Random.Range(-2f, 2f), Random.Range(-2f, 2f)).normalized * speed;
+    }
 
     void Start()
     {
@@ -45,14 +53,23 @@ public class TargetRing2D : MonoBehaviour
     void Update()
     {
         if (_hit) return;
-        float t = Time.time;
 
+        // Bounce movement
+        transform.position += (Vector3)_velocity * Time.deltaTime;
+
+        Vector3 vp = Camera.main.WorldToViewportPoint(transform.position);
+        if (vp.x < 0.05f || vp.x > 0.95f) _velocity.x *= -1f;
+        if (vp.y < 0.05f || vp.y > 0.95f) _velocity.y *= -1f;
+
+        // Wing flap
+        float t = Time.time;
         float wingAngle = Mathf.Sin(t * wingFlapSpeed) * wingFlapAmount;
         if (wingLeft != null)
             wingLeft.localRotation = Quaternion.Euler(0, 0, wingAngle);
         if (wingRight != null)
             wingRight.localRotation = Quaternion.Euler(0, 0, -wingAngle);
 
+        // Body pulse
         if (visualRoot != null)
         {
             float pulse = 1f + Mathf.Sin(t * pulseSpeed) * pulseAmount;

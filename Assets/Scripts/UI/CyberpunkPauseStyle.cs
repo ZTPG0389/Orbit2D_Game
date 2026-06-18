@@ -123,7 +123,7 @@ public class CyberpunkPauseStyle : MonoBehaviour
         _titleTMP.characterSpacing = 12f;
         _titleTMP.fontStyle = FontStyles.Bold;
         _titleTMP.alignment = TextAlignmentOptions.Center;
-        _titleTMP.enableWordWrapping = false;
+        _titleTMP.textWrappingMode = TextWrappingModes.NoWrap;
         if (orbitronFont != null) _titleTMP.font = orbitronFont;
 
         // TMP glow via material instance — "GLOW_ON" is the SDF shader keyword

@@ -13,7 +13,7 @@ public static class ProjectHealthCheck
         // 1. Missing scripts
         int missingTotal = 0;
         var missingList = new System.Text.StringBuilder();
-        foreach (var go in Object.FindObjectsOfType<GameObject>(true))
+        foreach (var go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             int miss = GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(go);
             if (miss > 0)
@@ -34,7 +34,7 @@ public static class ProjectHealthCheck
         }
 
         // 3. EnemySpawner
-        var es = Object.FindObjectOfType<EnemySpawner>(true);
+        var es = Object.FindFirstObjectByType<EnemySpawner>(FindObjectsInactive.Include);
         if (es != null)
             Debug.Log($"[CHECK] EnemySpawner: on='{es.gameObject.name}' enabled={es.enabled} goActive={es.gameObject.activeInHierarchy}");
         else
@@ -88,7 +88,7 @@ public static class ProjectHealthCheck
     public static void FixMissingScripts()
     {
         int removed = 0;
-        foreach (var go in Object.FindObjectsOfType<GameObject>(true))
+        foreach (var go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             int before = GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(go);
             if (before > 0)

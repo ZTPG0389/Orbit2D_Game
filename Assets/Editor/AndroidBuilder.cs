@@ -165,9 +165,11 @@ public static class AndroidBuilder
     static void ApplyAndroidSettings(ScriptingImplementation backend)
     {
         // Scripting backend
+#pragma warning disable CS0618
         if (PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android) != backend)
         {
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, backend);
+#pragma warning restore CS0618
             Debug.Log($"[AndroidBuilder] Backend → {backend}");
         }
 

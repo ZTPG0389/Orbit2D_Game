@@ -116,7 +116,7 @@ public class LevelSelectedSetup
         Debug.Log("Generated 15 level buttons in Edit mode!");
 
         // Disable LevelSelectedBuilder to avoid regenerating in Play mode
-        var builder = Object.FindObjectOfType<LevelSelectedBuilder>();
+        var builder = Object.FindFirstObjectByType<LevelSelectedBuilder>();
         if (builder != null)
         {
             builder.enabled = false;

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public class BallLauncher2D : MonoBehaviour
 {
     private List<OrbiterBall2D> _balls          = new List<OrbiterBall2D>();
-    private int                 _currentIndex   = 0;
     private bool                _allThrown      = false;
     private bool                _inputCooldown  = false;
     private bool                _waitingForExit = false;
@@ -20,7 +19,6 @@ public class BallLauncher2D : MonoBehaviour
     {
         CancelInvoke();
         _balls.Clear();
-        _currentIndex   = 0;
         _allThrown      = false;
         _inputCooldown  = false;
         _waitingForExit = false;
@@ -30,7 +28,6 @@ public class BallLauncher2D : MonoBehaviour
     {
         CancelInvoke();
         _balls.Clear();
-        _currentIndex   = 0;
         _allThrown      = false;
         _inputCooldown  = false;
         _waitingForExit = false;

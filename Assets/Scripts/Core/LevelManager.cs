@@ -132,6 +132,7 @@ public class LevelManager : MonoBehaviour
 
     public void LoadLevel(int levelNumber)
     {
+        if (Time.timeScale != 1f) Time.timeScale = 1f;  // last-resort guard: scene may have loaded while paused
         Debug.Log($"[LevelManager] LoadLevel({levelNumber})");
         ClearAll();
         _currentLevel = levelNumber;

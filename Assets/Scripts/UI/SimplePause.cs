@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SimplePause : MonoBehaviour
 {
@@ -24,6 +25,20 @@ public class SimplePause : MonoBehaviour
         PauseMenuUI.IsPaused     = false;
         HidePanel();
         Time.timeScale = 1f;
+    }
+
+    // ── Navigation: always resume before any scene change ───────────────────
+    // Wire pause panel buttons to these instead of SceneLoader.LoadMainMenu() directly.
+    public void GoToMainMenu()
+    {
+        ResumeGame();
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    public void GoToLevelSelect()
+    {
+        ResumeGame();
+        SceneManager.LoadScene("LevelSelected");
     }
 
     void ShowPanel()
